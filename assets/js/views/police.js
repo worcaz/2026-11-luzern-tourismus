@@ -32,7 +32,7 @@ function searchView() {
     next: policeNext(),
     body: `<div class="note note-lock">${icon('lock', 18)}<span>${esc(t('p.purposeNote'))}</span></div>
     <form class="card" data-submit="p.search" novalidate>
-      <h2>${icon('search', 20)} ${esc(t('p.search'))}</h2>
+      <h2>${esc(t('p.search'))}</h2>
       <div class="grid-2">
         ${field('purpose', t('p.purpose'), { value: q.purpose || '', required: true, options: [['', t('p.choose')], ...PURPOSES.map((p) => [p, t('p.pur.' + p)])] })}
         ${field('ref', t('p.ref'), { value: q.ref || '', required: true, hint: t('p.refHint') })}
@@ -50,8 +50,8 @@ function searchView() {
     </form>
     ${res}
     <div class="grid-2 gap">
-      <section class="card"><div class="card-head"><h2>${icon('eye', 20)} ${esc(t('p.visible'))}</h2></div><ul class="ticks"><li>${esc(t('p.v1'))}</li><li>${esc(t('p.v2'))}</li><li>${esc(t('p.v3'))}</li></ul></section>
-      <section class="card"><div class="card-head"><h2>${icon('lock', 20)} ${esc(t('p.notVisible'))}</h2></div><ul class="crosses"><li>${esc(t('p.nv1'))}</li><li>${esc(t('p.nv2'))}</li><li>${esc(t('p.nv3'))}</li></ul></section>
+      <section class="card"><div class="card-head"><h2>${esc(t('p.visible'))}</h2></div><ul class="ticks"><li>${esc(t('p.v1'))}</li><li>${esc(t('p.v2'))}</li><li>${esc(t('p.v3'))}</li></ul></section>
+      <section class="card"><div class="card-head"><h2>${esc(t('p.notVisible'))}</h2></div><ul class="crosses"><li>${esc(t('p.nv1'))}</li><li>${esc(t('p.nv2'))}</li><li>${esc(t('p.nv3'))}</li></ul></section>
     </div>`,
   };
 }
@@ -72,11 +72,11 @@ function account() {
     title: t('acc.title'),
     sub: t('p.accSub'),
     body: `<div class="grid-2 gap">
-      <section class="card"><div class="card-head"><h2>${icon('user', 20)} ${esc(t('acc.profile'))}</h2></div><dl class="dl"><dt>${esc(t('acc.name'))}</dt><dd>Kpl. Rahel Studer</dd><dt>${esc(t('acc.role'))}</dt><dd>${esc(t('p.roleV'))}</dd><dt>${esc(t('acc.login'))}</dt><dd>${icon('key', 15)} ${esc(t('p.loginV'))}</dd></dl></section>
-      <section class="card"><div class="card-head"><h2>${icon('link', 20)} ${esc(t('p.ifaces'))}</h2></div>
+      <section class="card"><div class="card-head"><h2>${esc(t('acc.profile'))}</h2></div><dl class="dl"><dt>${esc(t('acc.name'))}</dt><dd>Kpl. Rahel Studer</dd><dt>${esc(t('acc.role'))}</dt><dd>${esc(t('p.roleV'))}</dd><dt>${esc(t('acc.login'))}</dt><dd>${icon('key', 15)} ${esc(t('p.loginV'))}</dd></dl></section>
+      <section class="card"><div class="card-head"><h2>${esc(t('p.ifaces'))}</h2></div>
         <ul class="rows"><li><div><strong>${esc(t('p.if1'))}</strong><span class="muted">${esc(t('p.if1T'))}</span></div>${chip('ok', t('common.connected'), 'check')}</li>
         <li><div><strong>${esc(t('p.if2'))}</strong><span class="muted">${esc(t('p.if2T'))}</span></div>${chip('warn', t('p.variant'), 'clock')}</li></ul></section>
-      <section class="card"><div class="card-head"><h2>${icon('bell', 20)} ${esc(t('acc.notif'))}</h2></div>${toggle('p1', t('p.n1'), true)}${toggle('p2', t('p.n2'), false)}</section>
+      <section class="card"><div class="card-head"><h2>${esc(t('acc.notif'))}</h2></div>${toggle('p1', t('p.n1'), true)}${toggle('p2', t('p.n2'), false)}</section>
     </div>`,
   };
 }

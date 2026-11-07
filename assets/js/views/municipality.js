@@ -40,16 +40,15 @@ function overview(lang) {
     title: t('m.title'),
     sub: t('m.sub'),
     next: muniNext(),
-    body: `<div class="grid-kpi">
-      ${kpi(t('m.kObjects'), '386', t('m.kObjectsSub'), 'database')}
+    body: `<div class="grid-3 gap">
       ${kpi(t('m.kNights'), '118 420', t('m.kNightsSub'), 'bed')}
       ${kpi(t('m.kBilled'), chf(tt.sum), t('m.kBilledSub'), 'file')}
       ${kpi(t('m.kPaid'), tt.pct + ' %', chf(tt.paid), 'checkCircle', 'kpi-ok')}
     </div>
     <div class="grid-2 gap">
-      <section class="card"><div class="card-head"><h2>${icon('chart', 20)} ${esc(t('m.chart'))}</h2>${chip('neutral', t('common.fictitious'))}</div>${barChart(MUNI_MONTHS, MONTHS(lang), { highlight: 9 })}<p class="muted small">${esc(t('m.chartNote'))}</p></section>
-      <section class="card"><div class="card-head"><h2>${icon('alert', 20)} ${esc(t('m.alerts'))}</h2><a class="link" href="#/gemeinde/auffaelligkeiten">${esc(t('common.all'))} ${icon('chevronRight', 16)}</a></div>
-        <ul class="rows">${state.alerts.map((a) => `<li><div><strong>${esc(t(`al.${a.type}.title`))}</strong><span class="muted">${esc(t(`al.${a.type}.short`))}</span></div>${a.status === 'done' ? statusChip('done') : chip('warn', t('m.open'), 'clock')}</li>`).join('')}</ul></section>
+      <section class="card"><div class="card-head"><h2>${esc(t('m.chart'))}</h2></div>${barChart(MUNI_MONTHS, MONTHS(lang), { highlight: 9 })}<p class="muted small">${esc(t('m.chartNote'))}</p></section>
+      <section class="card"><div class="card-head"><h2>${esc(t('m.alerts'))}</h2><a class="link" href="#/gemeinde/auffaelligkeiten">${esc(t('common.all'))} ${icon('chevronRight', 16)}</a></div>
+        <ul class="rows">${state.alerts.map((a) => `<li><div><strong>${esc(t(`al.${a.type}.title`))}</strong><span class="muted">${esc(t(`al.${a.type}.short`))}</span></div>${a.status === 'done' ? statusChip('done') : ''}</li>`).join('')}</ul></section>
     </div>`,
   };
 }
@@ -68,19 +67,15 @@ function invoices() {
 
 function alerts() {
   const actions = { platform: 'm.contact', overdue: 'm.dunningA', anomaly: 'm.ask', dispute: 'm.decide' };
-  const icons = { platform: 'globe', overdue: 'wallet', anomaly: 'chart', dispute: 'scale' };
+  const list = state.alerts.slice().sort((x, y) => (x.status === 'done') - (y.status === 'done'));
   return {
     title: t('m.alertsTitle'),
     sub: t('m.alertsSub'),
-    next: muniNext(),
-    body: `<div class="alerts">${state.alerts.map((a) => `<article class="card alert-card ${a.status === 'done' ? 'is-done' : ''}">
-      <div class="alert-ic ic-${a.type}">${icon(icons[a.type], 22)}</div>
-      <div class="alert-main">
-        <div class="alert-top"><h3>${esc(t(`al.${a.type}.title`))}</h3>${a.status === 'done' ? statusChip('done') : chip('warn', t('m.open'), 'clock')}</div>
-        <p>${esc(t(`al.${a.type}.text`))}</p>
-        <p class="muted small">${icon('info', 14)} ${esc(t(`al.${a.type}.src`))}</p>
-        ${a.status === 'done' ? `<p class="ok-txt">${icon('check', 15)} ${esc(t(`al.${a.type}.doneT`))}</p>` : `<div class="btn-row"><button class="btn btn-primary btn-sm" data-action="m.resolve" data-arg="${a.id}">${esc(t(actions[a.type]))}</button><button class="btn btn-ghost btn-sm" data-action="m.dismiss" data-arg="${a.id}">${esc(t('m.dismiss'))}</button></div>`}
-      </div></article>`).join('')}</div>`,
+    body: `<div class="alerts">${list.map((a) => `<article class="card alert-card ${a.status === 'done' ? 'is-done' : ''}">
+      <div class="alert-top"><h3>${esc(t(`al.${a.type}.title`))}</h3>${a.status === 'done' ? statusChip('done') : ''}</div>
+      <p>${esc(t(`al.${a.type}.text`))}</p>
+      ${a.status === 'done' ? `<p class="ok-txt">${esc(t(`al.${a.type}.doneT`))}</p>` : `<div class="alert-foot"><div class="btn-row"><button class="btn btn-primary btn-sm" data-action="m.resolve" data-arg="${a.id}">${esc(t(actions[a.type]))}</button><button class="btn btn-ghost btn-sm" data-action="m.dismiss" data-arg="${a.id}">${esc(t('m.dismiss'))}</button></div><span class="muted small">${esc(t(`al.${a.type}.src`))}</span></div>`}
+    </article>`).join('')}</div>`,
   };
 }
 
@@ -112,7 +107,7 @@ function tariffs() {
       ${row('m.oertlich', TARIFFS.oertlich, true)}${row('m.kantonal', TARIFFS.kantonal, false)}
       <tr><td>${esc(t('m.pauschale'))}</td><td><div class="input-chf"><span>CHF</span><input type="number" value="${TARIFFS.pauschale}" aria-label="${esc(t('m.pauschale'))}" data-action="noop"></div><div class="muted small">${esc(t('m.pauschaleT'))}</div></td></tr>
     </tbody></table></section></div>
-    <section class="card"><div class="card-head"><h2>${icon('check', 20)} ${esc(t('m.exemptions'))}</h2></div>
+    <section class="card"><div class="card-head"><h2>${esc(t('m.exemptions'))}</h2></div>
       ${toggle('e1', t('m.ex1'), true)}${toggle('e2', t('m.ex2'), true)}${toggle('e3', t('m.ex3'), true)}${toggle('e4', t('m.ex4'), true)}
       <p class="muted small">${esc(t('m.exNote'))}</p></section>`,
   };
@@ -143,10 +138,10 @@ function account() {
     title: t('acc.title'),
     sub: t('m.accSub'),
     body: `<div class="grid-2 gap">
-      <section class="card"><div class="card-head"><h2>${icon('building', 20)} ${esc(t('acc.org'))}</h2></div><dl class="dl"><dt>${esc(t('acc.org'))}</dt><dd>${esc(t('m.orgName'))}</dd><dt>${esc(t('m.delegation'))}</dt><dd>${esc(t('m.delegationV'))}</dd><dt>${esc(t('acc.login'))}</dt><dd>${icon('key', 15)} AGOV</dd></dl></section>
-      <section class="card"><div class="card-head"><h2>${icon('users', 20)} ${esc(t('acc.users'))}</h2></div><ul class="rows"><li><div><strong>Monika Achermann</strong><span class="muted">${esc(t('m.roleLead'))}</span></div>${chip('ok', t('acc.active'))}</li><li><div><strong>Jonas Bühler</strong><span class="muted">${esc(t('m.roleClerk'))}</span></div>${chip('ok', t('acc.active'))}</li></ul></section>
-      <section class="card"><div class="card-head"><h2>${icon('wallet', 20)} ${esc(t('acc.payment'))}</h2></div><dl class="dl"><dt>IBAN</dt><dd class="mono">CH44 0900 0000 6000 1234 5</dd><dt>${esc(t('m.reglement'))}</dt><dd>${esc(t('m.reglementV'))}</dd></dl></section>
-      <section class="card"><div class="card-head"><h2>${icon('bell', 20)} ${esc(t('acc.notif'))}</h2></div>${toggle('m1', t('m.n1'), true)}${toggle('m2', t('m.n2'), true)}</section>
+      <section class="card"><div class="card-head"><h2>${esc(t('acc.org'))}</h2></div><dl class="dl"><dt>${esc(t('acc.org'))}</dt><dd>${esc(t('m.orgName'))}</dd><dt>${esc(t('m.delegation'))}</dt><dd>${esc(t('m.delegationV'))}</dd><dt>${esc(t('acc.login'))}</dt><dd>${icon('key', 15)} AGOV</dd></dl></section>
+      <section class="card"><div class="card-head"><h2>${esc(t('acc.users'))}</h2></div><ul class="rows"><li><div><strong>Monika Achermann</strong><span class="muted">${esc(t('m.roleLead'))}</span></div>${chip('ok', t('acc.active'))}</li><li><div><strong>Jonas Bühler</strong><span class="muted">${esc(t('m.roleClerk'))}</span></div>${chip('ok', t('acc.active'))}</li></ul></section>
+      <section class="card"><div class="card-head"><h2>${esc(t('acc.payment'))}</h2></div><dl class="dl"><dt>IBAN</dt><dd class="mono">CH44 0900 0000 6000 1234 5</dd><dt>${esc(t('m.reglement'))}</dt><dd>${esc(t('m.reglementV'))}</dd></dl></section>
+      <section class="card"><div class="card-head"><h2>${esc(t('acc.notif'))}</h2></div>${toggle('m1', t('m.n1'), true)}${toggle('m2', t('m.n2'), true)}</section>
     </div>`,
   };
 }

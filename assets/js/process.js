@@ -64,21 +64,11 @@ export function stageStatus() {
 
 export function navigator(role) {
   const { status, index, current } = stageStatus();
-  const steps = STAGES.map((s, i) => {
+  const segs = STAGES.map((s, i) => {
     const st = status[s.id];
     const mine = role && s.roles.includes(role);
-    return `<a class="pn-step is-${st} ${mine ? 'is-mine' : ''}" href="#/prozess" aria-current="${st === 'current' ? 'step' : 'false'}">
-      <span class="pn-dot">${st === 'done' ? icon('check', 16) : `<span>${i + 1}</span>`}</span>
-      <span class="pn-lbl">${esc(t('stage.' + s.id))}</span>
-      ${mine ? `<span class="pn-you">${esc(t('nav.yourPart'))}</span>` : ''}
-    </a>`;
+    return `<span class="pl-seg is-${st} ${mine ? 'is-mine' : ''}" title="${i + 1}. ${esc(t('stage.' + s.id))}${mine ? ' · ' + esc(t('nav.yourPart')) : ''}"></span>`;
   }).join('');
-  const curLabel = current ? t('stage.' + current) : t('proc.allDone');
-  return `<section class="procnav-wrap" aria-label="${esc(t('proc.title'))}">
-    <div class="procnav-head">
-      <span class="procnav-case">${icon('route', 16)} ${esc(t('proc.case'))}</span>
-      <span class="procnav-pos">${current ? esc(t('proc.position', { n: index, total: STAGES.length, stage: curLabel })) : esc(curLabel)}</span>
-    </div>
-    <nav class="procnav">${steps}</nav>
-  </section>`;
+  const label = current ? t('proc.position', { n: index, total: STAGES.length, stage: t('stage.' + current) }) : t('proc.allDone');
+  return `<a class="pline" href="#/prozess" title="${esc(t('proc.case'))}"><span class="pl-bar" aria-hidden="true">${segs}</span><span class="pl-txt">${esc(label)}</span></a>`;
 }

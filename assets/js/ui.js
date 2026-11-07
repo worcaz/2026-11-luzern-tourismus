@@ -103,7 +103,7 @@ export function hbars(items, { unit = '' } = {}) {
 }
 
 export function kpi(label, value, sub, ic, kind = '') {
-  return `<div class="kpi ${kind}"><div class="kpi-top">${ic ? `<span class="kpi-ic">${icon(ic, 18)}</span>` : ''}<span class="kpi-lbl">${esc(label)}</span></div><div class="kpi-val">${esc(value)}</div>${sub ? `<div class="kpi-sub">${esc(sub)}</div>` : ''}</div>`;
+  return `<div class="kpi ${kind}"><div class="kpi-lbl">${esc(label)}</div><div class="kpi-val">${esc(value)}</div>${sub ? `<div class="kpi-sub">${esc(sub)}</div>` : ''}</div>`;
 }
 
 export function field(name, label, { type = 'text', value = '', required = false, hint = '', options = null, err = '', autocomplete = '', attrs = '' } = {}) {

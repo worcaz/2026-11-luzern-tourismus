@@ -87,18 +87,16 @@ function protoBanner(lang) {
 }
 
 function nextCard(n) {
-  if (!n) return '';
-  const cta = n.href ? `<a class="btn btn-light" href="${n.href}">${esc(n.cta)} ${icon('arrowRight', 16)}</a>` : `<button class="btn btn-light" data-action="${n.action}" data-arg="${esc(n.arg || '')}">${esc(n.cta)} ${icon('arrowRight', 16)}</button>`;
+  if (!n || (n.href && n.href === location.hash)) return '';
+  const cta = n.href ? `<a class="btn btn-primary" href="${n.href}">${esc(n.cta)} ${icon('arrowRight', 16)}</a>` : `<button class="btn btn-primary" data-action="${n.action}" data-arg="${esc(n.arg || '')}">${esc(n.cta)} ${icon('arrowRight', 16)}</button>`;
   return `<section class="next ${n.calm ? 'next-calm' : ''}" aria-label="${esc(t('nav.nextStep'))}">
-    <span class="next-ic">${icon(n.icon || 'arrowRight', 22)}</span>
     <div class="next-txt"><span class="next-lbl">${esc(t('nav.nextStep'))}</span><strong>${esc(n.title)}</strong><span>${esc(n.text)}</span></div>
     ${cta}
   </section>`;
 }
 
 function page(v, role) {
-  return `<div class="page-head"><div><h1>${esc(v.title)}</h1>${v.sub ? `<p class="muted">${esc(v.sub)}</p>` : ''}</div>${v.actions ? `<div class="page-actions">${v.actions}</div>` : ''}</div>
-    ${role !== undefined ? procNav(role) : ''}
+  return `<div class="page-head"><div><h1>${esc(v.title)}</h1>${v.sub ? `<p class="muted">${esc(v.sub)}</p>` : ''}${role ? procNav(role) : ''}</div>${v.actions ? `<div class="page-actions">${v.actions}</div>` : ''}</div>
     ${nextCard(v.next)}
     ${v.body}`;
 }

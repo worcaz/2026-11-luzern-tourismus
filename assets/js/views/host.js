@@ -49,11 +49,11 @@ function overview(h) {
     </div>
     <div class="grid-2 gap">
       <section class="card">
-        <div class="card-head"><h2>${icon('calendar', 20)} ${esc(t('h.today'))}</h2><a class="link" href="#/gastgeber/ankuenfte">${esc(t('common.all'))} ${icon('chevronRight', 16)}</a></div>
+        <div class="card-head"><h2>${esc(t('h.today'))}</h2><a class="link" href="#/gastgeber/ankuenfte">${esc(t('common.all'))} ${icon('chevronRight', 16)}</a></div>
         <ul class="rows">${arr.map((b) => `<li><div><strong>${esc(b.main.first)} ${esc(b.main.last)}</strong>${b.group ? ` <span class="chip chip-neutral">${esc(t('h.group'))}</span>` : ''}<span class="muted">${esc(b.room)} · ${esc(t('h.persons', { n: b.adults + b.children }))}</span></div>${statusChip(b.status)}</li>`).join('')}</ul>
       </section>
       <section class="card">
-        <div class="card-head"><h2>${icon('zap', 20)} ${esc(t('h.auto'))}</h2></div>
+        <div class="card-head"><h2>${esc(t('h.auto'))}</h2></div>
         <p class="muted">${esc(t('h.autoText'))}</p>
         <ul class="ticks">
           <li>${esc(t('h.auto1'))}</li><li>${esc(t('h.auto2'))}</li><li>${esc(t('h.auto3'))}</li><li>${esc(t('h.auto4'))}</li>
@@ -85,7 +85,7 @@ function arrivalsView(h) {
     next: hostNext(),
     body: `<div class="note">${icon('info', 18)}<span>${esc(t('h.arrivalsNote'))}</span></div>
     <section class="card p0"><table class="tbl"><thead><tr><th>${esc(t('h.colGuest'))}</th><th>${esc(t('h.colStay'))}</th><th>${esc(t('h.colStatus'))}</th><th><span class="sr">${esc(t('common.action'))}</span></th></tr></thead><tbody>${rows}</tbody></table></section>
-    <section class="card"><div class="card-head"><h2>${icon('bed', 20)} ${esc(t('h.inHouse'))}</h2></div>
+    <section class="card"><div class="card-head"><h2>${esc(t('h.inHouse'))}</h2></div>
       <ul class="rows">${house.map((b) => `<li><div><strong>${esc(b.main.first)} ${esc(b.main.last)}</strong><span class="muted">${esc(frange(b.arrival, b.departure))} · ${esc(b.room)}</span></div>${statusChip('checkedin')}</li>`).join('') || `<li class="muted">–</li>`}</ul></section>`,
   };
 }
@@ -124,17 +124,17 @@ function invoicesView(h) {
   const hist = state.invoices.filter((i) => i.host === 'H1');
   const running = runningNights('H1');
   const reviewCard = inv.status === 'review' ? `<section class="card card-focus">
-      <div class="card-head"><h2>${icon('file', 20)} ${esc(t('h.invTitle', { m: fmonth(inv.period) }))}</h2>${statusChip(inv.status)}</div>
+      <div class="card-head"><h2>${esc(t('h.invTitle', { m: fmonth(inv.period) }))}</h2>${statusChip(inv.status)}</div>
       <p class="muted">${esc(t('h.invAuto', { due: fdate(inv.due) }))}</p>
       ${invoiceDetail(inv)}
       <div class="btn-row"><button class="btn btn-primary" data-action="h.pay">${icon('check', 18)} ${esc(t('h.confirmPay'))}</button><button class="btn btn-secondary" data-action="h.correct">${icon('edit', 18)} ${esc(t('h.correct'))}</button></div>
-    </section>` : `<section class="card card-ok"><div class="card-head"><h2>${icon('checkCircle', 20)} ${esc(t('h.invTitle', { m: fmonth(inv.period) }))}</h2>${statusChip(inv.status)}</div><p>${esc(t('h.invPaid', { at: fdate(inv.paidAt) }))}</p>${invoiceDetail(inv)}</section>`;
+    </section>` : `<section class="card card-ok"><div class="card-head"><h2>${esc(t('h.invTitle', { m: fmonth(inv.period) }))}</h2>${statusChip(inv.status)}</div><p>${esc(t('h.invPaid', { at: fdate(inv.paidAt) }))}</p>${invoiceDetail(inv)}</section>`;
   return {
     title: t('h.invoicesTitle'),
     sub: t('h.invoicesSub'),
     next: hostNext(),
     body: `<div class="grid-2 gap">${reviewCard}
-      <section class="card"><div class="card-head"><h2>${icon('clock', 20)} ${esc(t('h.running', { m: fmonth('2026-11') }))}</h2>${chip('info', t('h.live'), 'zap')}</div>
+      <section class="card"><div class="card-head"><h2>${esc(t('h.running', { m: fmonth('2026-11') }))}</h2>${chip('info', t('h.live'), 'zap')}</div>
         <div class="big-num">${esc(num(running))}</div><p class="muted">${esc(t('h.runningText'))}</p>
         <div class="note">${icon('info', 18)}<span>${esc(t('h.runningNote'))}</span></div>
       </section></div>
@@ -151,7 +151,7 @@ function objectsView(h) {
     sub: t('h.objectsSub'),
     actions: `<a class="btn btn-primary" href="#/registrierung">${icon('plus', 18)} ${esc(t('h.addObject'))}</a>`,
     body: `<div class="grid-2 gap"><section class="card">
-      <div class="card-head"><h2>${icon('bed', 20)} ${esc(h.name)}</h2>${chip('ok', t('h.registered'), 'check')}</div>
+      <div class="card-head"><h2>${esc(h.name)}</h2>${chip('ok', t('h.registered'), 'check')}</div>
       <dl class="dl">
         <dt>${esc(t('h.objNo'))}</dt><dd class="mono">${esc(h.objectNo)}</dd>
         <dt>${esc(t('h.address'))}</dt><dd>${esc(h.address)}</dd>
@@ -159,7 +159,7 @@ function objectsView(h) {
         <dt>${esc(t('h.category'))}</dt><dd>${esc(t('cat.' + h.cat))}</dd>
         <dt>${esc(t('h.capacity'))}</dt><dd>${esc(t('h.capacityV', { r: h.rooms, b: h.beds }))}</dd>
       </dl></section>
-      <section class="card"><div class="card-head"><h2>${icon('link', 20)} ${esc(t('h.channels'))}</h2></div>
+      <section class="card"><div class="card-head"><h2>${esc(t('h.channels'))}</h2></div>
         <ul class="rows">
           <li><div><strong>${esc(t('h.pms'))}</strong><span class="muted">${esc(t('h.pmsT'))}</span></div>${chip('ok', t('common.connected'), 'check')}</li>
           <li><div><strong>${esc(t('h.cm'))}</strong><span class="muted">${esc(t('h.cmT'))}</span></div>${chip('ok', t('common.connected'), 'check')}</li>
@@ -174,13 +174,13 @@ function accountView(h) {
     title: t('acc.title'),
     sub: `${h.contact} · ${h.name}`,
     body: `<div class="grid-2 gap">
-      <section class="card"><div class="card-head"><h2>${icon('user', 20)} ${esc(t('acc.profile'))}</h2></div>
+      <section class="card"><div class="card-head"><h2>${esc(t('acc.profile'))}</h2></div>
         <dl class="dl"><dt>${esc(t('acc.name'))}</dt><dd>Sandra Meier</dd><dt>${esc(t('acc.role'))}</dt><dd>${esc(t('acc.roleAdmin'))}</dd><dt>${esc(t('acc.email'))}</dt><dd>${esc(h.email)}</dd><dt>${esc(t('acc.login'))}</dt><dd>${icon('key', 15)} ${esc(t('acc.passkey'))}</dd></dl></section>
-      <section class="card"><div class="card-head"><h2>${icon('users', 20)} ${esc(t('acc.users'))}</h2><button class="btn btn-ghost btn-sm" data-action="toastInfo" data-arg="${esc(t('common.protoToast'))}">${icon('plus', 16)} ${esc(t('acc.invite'))}</button></div>
+      <section class="card"><div class="card-head"><h2>${esc(t('acc.users'))}</h2><button class="btn btn-ghost btn-sm" data-action="toastInfo" data-arg="${esc(t('common.protoToast'))}">${icon('plus', 16)} ${esc(t('acc.invite'))}</button></div>
         <ul class="rows"><li><div><strong>Sandra Meier</strong><span class="muted">${esc(t('acc.roleAdmin'))}</span></div>${chip('ok', t('acc.active'))}</li><li><div><strong>Luca Brunner</strong><span class="muted">${esc(t('acc.roleFront'))}</span></div>${chip('ok', t('acc.active'))}</li><li><div><strong>Treuhand Brun AG</strong><span class="muted">${esc(t('acc.roleFinance'))}</span></div>${chip('neutral', t('acc.readonly'))}</li></ul></section>
-      <section class="card"><div class="card-head"><h2>${icon('wallet', 20)} ${esc(t('acc.payment'))}</h2></div>
+      <section class="card"><div class="card-head"><h2>${esc(t('acc.payment'))}</h2></div>
         <dl class="dl"><dt>IBAN</dt><dd class="mono">CH93 0076 2011 6238 5295 7</dd><dt>${esc(t('acc.ebill'))}</dt><dd>${chip('ok', t('acc.ebillOn'), 'check')}</dd></dl></section>
-      <section class="card"><div class="card-head"><h2>${icon('bell', 20)} ${esc(t('acc.notif'))}</h2></div>
+      <section class="card"><div class="card-head"><h2>${esc(t('acc.notif'))}</h2></div>
         ${toggle('n1', t('acc.n1'), true)}${toggle('n2', t('acc.n2'), true)}${toggle('n3', t('acc.n3'), false)}</section>
     </div>`,
   };

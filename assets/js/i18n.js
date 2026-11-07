@@ -114,6 +114,7 @@ const D = {
   'proc.sub': ['Sechs Etappen, 13 Aufgaben – live am Demo-Fall', 'Six étapes, 13 tâches – en direct sur le cas de démo', 'Sei tappe, 13 compiti – dal vivo sul caso demo', 'Six stages, 13 tasks – live on the demo case'],
   'proc.case': ['Demo-Fall: Buchung B-24017, Claire Martin', 'Cas de démo: réservation B-24017, Claire Martin', 'Caso demo: prenotazione B-24017, Claire Martin', 'Demo case: booking B-24017, Claire Martin'],
   'proc.position': ['Etappe {n} von {total}: {stage}', 'Étape {n} sur {total}: {stage}', 'Tappa {n} di {total}: {stage}', 'Stage {n} of {total}: {stage}'],
+  'proc.progress': ['{done} von {total} Aufgaben im Demo-Fall erledigt', '{done} tâches sur {total} terminées dans le cas de démo', '{done} compiti su {total} completati nel caso demo', '{done} of {total} tasks completed in the demo case'],
   'proc.allDone': ['Alle Etappen abgeschlossen', 'Toutes les étapes terminées', 'Tutte le tappe completate', 'All stages completed'],
   'proc.open': ['Ansehen', 'Voir', 'Apri', 'View'],
   'proc.now': ['Jetzt', 'Maintenant', 'Ora', 'Now'],

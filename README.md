@@ -12,7 +12,7 @@ Interaktiver Klick-Prototyp für die gemeinsame elektronische Plattform zur Erhe
 2. Oder direkt eine Ansicht wählen: Gast, Gastgeber, Gemeinde, Polizei, Kanton & LTAG.
 3. Oben rechts: Sprache (DE, FR, IT, EN) und Demo-Menü (Tour, Gast-Link, Zurücksetzen).
 
-Jede Ansicht zeigt den **Prozess-Navigator** (wo steht der Demo-Fall, wo bin ich beteiligt) und die Karte **«Ihr nächster Schritt»**.
+Jede Rollenansicht zeigt unter dem Titel eine schlanke **Prozesslinie** (Etappe x von 6, Klick führt zum Soll-Prozess). Auf den Übersichten steht zusätzlich die Karte **«Ihr nächster Schritt»** – bewusst nur eine Handlung pro Seite.
 
 ## Abdeckung Soll-Prozess (13 Aufgaben)
 

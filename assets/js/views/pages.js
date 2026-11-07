@@ -4,7 +4,7 @@ import { icon } from '../icons.js';
 import { esc, fdt, chip } from '../ui.js';
 import { STAGES, TASKS, taskDone, stageStatus, ROLES } from '../process.js';
 
-const MODE = { manual: ['warn', 'mode.manual'], semi: ['violet', 'mode.semi'], auto: ['ok', 'mode.auto'], self: ['info', 'mode.self'] };
+const MODE = { manual: 'mode.manual', semi: 'mode.semi', auto: 'mode.auto', self: 'mode.self' };
 
 export function homeView() {
   const roles = ['guest', 'host', 'municipality', 'police', 'canton'];
@@ -49,24 +49,25 @@ export function processView() {
   const total = TASKS.length;
   const doneN = TASKS.filter((x) => d[x.id]).length;
   const stages = STAGES.map((s, i) => {
-    const tasks = TASKS.filter((x) => x.stage === s.id).map((x) => `<li class="task ${d[x.id] ? 'is-done' : ''}">
-        <span class="task-st">${d[x.id] ? icon('checkCircle', 20) : icon('clock', 20)}</span>
-        <div class="task-main"><div class="task-top"><span class="task-id">${x.id.replace('T', '')}</span><strong>${esc(t('task.' + x.id))}</strong></div>
-          <div class="task-meta">${chip('neutral', t('actor.' + x.actor), x.actor === 'platform' ? 'zap' : (ROLES[x.actor] || {}).icon)}${chip(MODE[x.mode][0], t(MODE[x.mode][1]))}</div></div>
-        <a class="btn btn-ghost btn-sm" href="${x.href}">${esc(t('proc.open'))} ${icon('arrowRight', 15)}</a>
-      </li>`).join('');
-    return `<section class="stage card is-${status[s.id]}">
-      <div class="stage-head"><span class="stage-num">${status[s.id] === 'done' ? icon('check', 18) : i + 1}</span><div><h2>${esc(t('stage.' + s.id))}</h2><p class="muted">${esc(t('stage.' + s.id + '.d'))}</p></div>${status[s.id] === 'current' ? chip('info', t('proc.now'), 'route') : status[s.id] === 'done' ? chip('ok', t('status.done'), 'check') : ''}</div>
-      <ul class="tasks">${tasks}</ul></section>`;
+    const st = status[s.id];
+    const list = TASKS.filter((x) => x.stage === s.id);
+    const tasks = list.map((x) => `<li><a class="task ${d[x.id] ? 'is-done' : ''}" href="${x.href}">
+        <span class="task-st">${d[x.id] ? icon('checkCircle', 20) : '<span class="task-open"></span>'}</span>
+        <span class="task-main"><strong>${esc(t('task.' + x.id))}</strong><span class="muted small">${x.id.replace('T', '')} · ${esc(t('actor.' + x.actor))} · ${esc(t(MODE[x.mode]))}</span></span>
+        ${icon('chevronRight', 18)}
+      </a></li>`).join('');
+    const right = st === 'current' ? chip('info', t('proc.now')) : st === 'done' ? `<span class="muted small">${list.length}/${list.length}</span>` : '';
+    return `<details class="stage card is-${st}" ${st === 'done' ? '' : 'open'}>
+      <summary class="stage-head"><span class="stage-num">${st === 'done' ? icon('check', 18) : i + 1}</span><span class="stage-ttl"><h2>${esc(t('stage.' + s.id))}</h2><span class="muted">${esc(t('stage.' + s.id + '.d'))}</span></span>${right}${icon('chevronDown', 18, 'stage-chev')}</summary>
+      <ul class="tasks">${tasks}</ul></details>`;
   }).join('');
-  const feed = state.feed.slice(0, 14).map((f) => `<li><span class="feed-ic">${icon('zap', 15)}</span><div><span>${esc(t(f.k, f.v))}</span><span class="muted small">${esc(fdt(f.at))}</span></div></li>`).join('');
+  const feed = state.feed.slice(0, 8).map((f) => `<li><span>${esc(t(f.k, f.v))}</span><span class="muted small">${esc(fdt(f.at))}</span></li>`).join('');
   return {
     title: t('proc.title'),
-    sub: t('proc.sub'),
+    sub: t('proc.progress', { done: doneN, total }),
     actions: `<button class="btn btn-primary" data-action="tourStart">${icon('play', 18)} ${esc(t('home.tour'))}</button>`,
-    body: `<div class="cover"><div class="cover-num"><strong>${doneN}/${total}</strong><span>${esc(t('proc.coverage'))}</span></div><div class="cover-bar"><div style="width:${(doneN / total) * 100}%"></div></div><p class="muted small">${esc(t('proc.coverNote'))}</p></div>
-    <div class="proc-layout"><div class="stages">${stages}</div>
-    <aside class="card feed"><div class="card-head"><h2>${icon('zap', 20)} ${esc(t('proc.feed'))}</h2>${chip('ok', t('h.live'))}</div><p class="muted small">${esc(t('proc.feedT'))}</p><ul class="feed-list">${feed}</ul></aside></div>
-    <section class="card"><div class="card-head"><h2>${icon('info', 20)} ${esc(t('proc.assumptions'))}</h2></div><ul class="ticks">${[1, 2, 3, 4, 5, 6].map((n) => `<li>${esc(t('proc.a' + n))}</li>`).join('')}</ul></section>`,
+    body: `<div class="proc-wrap"><div class="stages">${stages}</div>
+    <details class="card fold"><summary>${esc(t('proc.feed'))}${icon('chevronDown', 18, 'stage-chev')}</summary><p class="muted small">${esc(t('proc.feedT'))}</p><ul class="feed-list">${feed}</ul></details>
+    <details class="card fold"><summary>${esc(t('proc.assumptions'))}${icon('chevronDown', 18, 'stage-chev')}</summary><ul class="ticks">${[1, 2, 3, 4, 5, 6].map((n) => `<li>${esc(t('proc.a' + n))}</li>`).join('')}</ul></details></div>`,
   };
 }

@@ -20,24 +20,18 @@ export function cantonView(tab, lang) {
     title: t('k.title'),
     sub: t('k.sub'),
     next: cantonNext(),
-    body: `<div class="note note-lock">${icon('lock', 18)}<span>${esc(t('k.aggNote'))}</span></div>
-    <div class="grid-kpi">
-      ${kpi(t('k.kObjects'), '1 942', t('k.kObjectsSub'), 'database')}
-      ${kpi(t('k.kNights'), '1.89 Mio.', t('k.kNightsSub'), 'bed')}
-      ${kpi(t('k.kDigital'), '87 %', t('k.kDigitalSub'), 'zap', 'kpi-ok')}
-      ${kpi(t('k.kLevy'), chf(ytd), t('k.kLevySub'), 'landmark')}
+    body: `<div class="grid-3 gap">
+      ${kpi(t('k.kNights'), '1.89 Mio.', t('k.kNightsSub'))}
+      ${kpi(t('k.kLevy'), 'CHF ' + (ytd / 1e6).toFixed(2) + ' Mio.', t('k.kLevySub'))}
+      ${kpi(t('k.kDigital'), '87 %', t('k.kDigitalSub'))}
     </div>
     <div class="grid-2 gap">
-      <section class="card"><div class="card-head"><h2>${icon('chart', 20)} ${esc(t('k.chart'))}</h2>${chip('neutral', t('common.fictitious'))}</div>${barChart(levy, months, { highlight: 9 })}<p class="muted small">${esc(t('k.chartNote'))}</p></section>
-      <section class="card"><div class="card-head"><h2>${icon('map', 20)} ${esc(t('k.regions'))}</h2></div>${hbars(CANTON_REGIONS, { unit: '' })}<p class="muted small">${esc(t('k.regionsNote'))}</p></section>
+      <section class="card"><div class="card-head"><h2>${esc(t('k.chart'))}</h2></div>${barChart(levy, months, { highlight: 9 })}<p class="muted small">${esc(t('k.chartNote'))}</p></section>
+      <section class="card"><div class="card-head"><h2>${esc(t('k.regions'))}</h2></div>${hbars(CANTON_REGIONS, { unit: '' })}</section>
     </div>
-    <div class="grid-3 gap">
-      ${kpi(t('k.kPre'), '64 %', t('k.kPreSub'), 'phone')}
-      ${kpi(t('k.kStay'), '1.9', t('k.kStaySub'), 'calendar')}
-      ${kpi(t('k.kPlatform'), '11 %', t('k.kPlatformSub'), 'globe')}
-    </div>
-    <section class="card"><div class="card-head"><h2>${icon('download', 20)} ${esc(t('k.reports'))}</h2></div>
-      <ul class="rows">${['k.r1', 'k.r2', 'k.r3'].map((k) => `<li><div><strong>${esc(t(k))}</strong><span class="muted">${esc(t(k + 'T'))}</span></div><button class="btn btn-ghost btn-sm" data-action="toastInfo" data-arg="${esc(t('common.pdfToast'))}">${icon('download', 16)} ${esc(t('common.download'))}</button></li>`).join('')}</ul></section>`,
+    <section class="card"><div class="card-head"><h2>${esc(t('k.reports'))}</h2></div>
+      <ul class="rows">${['k.r2', 'k.r3'].map((k) => `<li><div><strong>${esc(t(k))}</strong><span class="muted">${esc(t(k + 'T'))}</span></div><button class="btn btn-ghost btn-sm" data-action="toastInfo" data-arg="${esc(t('common.pdfToast'))}">${esc(t('common.download'))}</button></li>`).join('')}</ul></section>
+    <p class="muted small foot-note">${icon('lock', 14)} ${esc(t('k.aggNote'))}</p>`,
   };
 }
 
@@ -45,7 +39,7 @@ function account() {
   return {
     title: t('acc.title'),
     sub: t('k.accSub'),
-    body: `<div class="grid-2 gap"><section class="card"><div class="card-head"><h2>${icon('landmark', 20)} ${esc(t('acc.org'))}</h2></div><dl class="dl"><dt>${esc(t('acc.org'))}</dt><dd>${esc(t('k.orgV'))}</dd><dt>${esc(t('acc.role'))}</dt><dd>${esc(t('k.roleV'))}</dd><dt>${esc(t('acc.login'))}</dt><dd>${icon('key', 15)} AGOV</dd></dl></section>
-    <section class="card"><div class="card-head"><h2>${icon('lock', 20)} ${esc(t('k.rights'))}</h2></div><ul class="ticks"><li>${esc(t('k.ri1'))}</li><li>${esc(t('k.ri2'))}</li></ul><ul class="crosses"><li>${esc(t('k.ri3'))}</li></ul></section></div>`,
+    body: `<div class="grid-2 gap"><section class="card"><div class="card-head"><h2>${esc(t('acc.org'))}</h2></div><dl class="dl"><dt>${esc(t('acc.org'))}</dt><dd>${esc(t('k.orgV'))}</dd><dt>${esc(t('acc.role'))}</dt><dd>${esc(t('k.roleV'))}</dd><dt>${esc(t('acc.login'))}</dt><dd>${icon('key', 15)} AGOV</dd></dl></section>
+    <section class="card"><div class="card-head"><h2>${esc(t('k.rights'))}</h2></div><ul class="ticks"><li>${esc(t('k.ri1'))}</li><li>${esc(t('k.ri2'))}</li></ul><ul class="crosses"><li>${esc(t('k.ri3'))}</li></ul></section></div>`,
   };
 }
