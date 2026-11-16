@@ -63,6 +63,13 @@ export function osmdata() {
   return null;
 }
 
+// Umlaufrichtung vereinheitlichen: Ringe mit gegensätzlicher Richtung heben sich bei überlappenden Gebäuden sonst auf (Löcher)
+function ccw(pts) {
+  let a = 0;
+  for (let i = 0; i < pts.length; i++) { const [x0, y0] = pts[i]; const [x1, y1] = pts[(i + 1) % pts.length]; a += x0 * y1 - x1 * y0; }
+  return a < 0 ? pts.slice().reverse() : pts;
+}
+
 function decodeAbs(a) {
   const pts = [[a[0], a[1]]];
   let x = a[0], y = a[1];
@@ -86,7 +93,7 @@ export function osmPaths(zoom, proj) {
       for (const [x, y] of pts) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
       if (x1 - x0 < minExt && y1 - y0 < minExt) continue;
     }
-    b += 'M' + pts.map(P).join('L') + 'Z';
+    b += 'M' + ccw(pts).map(P).join('L') + 'Z';
   }
   const lines = (arr) => arr.map((a) => 'M' + decodeAbs(a).map(P).join('L')).join('');
   pathCache[zoom] = { buildings: b, rivers: lines(d.r), creeks: zoom === 'center' ? lines(d.s) : '' };
@@ -101,13 +108,24 @@ export function osmLocal(lon, lat, dLon, dLat, proj) {
   const near = (x, y) => Math.abs(ox + x / 1e5 - lon) < dLon && Math.abs(oy + y / 1e5 - lat) < dLat;
   const P = ([x, y]) => { const [px, py] = proj(ox + x / 1e5, oy + y / 1e5); return `${px.toFixed(1)} ${py.toFixed(1)}`; };
   let buildings = '';
+  let target = ''; let tBest = Infinity;
+  const inRing = (ring) => { let c = false; for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) { const [xi, yi] = ring[i]; const [xj, yj] = ring[j]; if ((yi > lat) !== (yj > lat) && lon < ((xj - xi) * (lat - yi)) / (yj - yi) + xi) c = !c; } return c; };
   for (const a of d.b) {
-    if (!near(a[0], a[1])) continue;
-    buildings += 'M' + decodeAbs(a).map(P).join('L') + 'Z';
+    // grosse Gebäude: der erste Punkt kann ausserhalb liegen, deshalb Ausdehnung prüfen
+    if (Math.abs(ox + a[0] / 1e5 - lon) > dLon + 0.01 || Math.abs(oy + a[1] / 1e5 - lat) > dLat + 0.01) continue;
+    const pts = decodeAbs(a);
+    let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
+    for (const [x, y] of pts) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+    if (ox + x1 / 1e5 < lon - dLon || ox + x0 / 1e5 > lon + dLon || oy + y1 / 1e5 < lat - dLat || oy + y0 / 1e5 > lat + dLat) continue;
+    const path = 'M' + ccw(pts).map(P).join('L') + 'Z';
+    buildings += path;
+    // Gebäude des Betriebs: das Gebäude, das den Punkt enthält (sonst das nächstgelegene Zentrum)
+    const ring = pts.map(([x, y]) => [ox + x / 1e5, oy + y / 1e5]);
+    if (inRing(ring)) { const area = (x1 - x0) * (y1 - y0); if (area < tBest) { tBest = area; target = path; } }
   }
   const lines = (arr) => arr.map((a) => {
     const pts = decodeAbs(a).filter(([x, y]) => Math.abs(ox + x / 1e5 - lon) < dLon * 2 && Math.abs(oy + y / 1e5 - lat) < dLat * 2);
     return pts.length > 1 ? 'M' + pts.map(P).join('L') : '';
   }).join('');
-  return { buildings, rivers: lines(d.r), creeks: lines(d.s) };
+  return { buildings, target, rivers: lines(d.r), creeks: lines(d.s) };
 }

@@ -92,11 +92,11 @@ export const S_LABELS = [
 
 // Standorte der Demo-Betriebe (H1–H6) – georeferenziert
 export const HOST_GEO = {
-  H1: { lon: 8.3098, lat: 47.0528 },
-  H2: { lon: 8.3055, lat: 47.0508 },
-  H3: { lon: 8.3020, lat: 47.0548 },
+  H1: { lon: 8.308660, lat: 47.053065 },
+  H2: { lon: 8.305489, lat: 47.050587 },
+  H3: { lon: 8.302264, lat: 47.054704 },
   H4: { lon: 8.2755, lat: 47.0765 },
-  H5: { lon: 8.3190, lat: 47.0590 },
+  H5: { lon: 8.318787, lat: 47.058989 },
   H6: { lon: 8.3125, lat: 47.0430 },
 };
 // Logiernächte Oktober 2026 je Betrieb (aus den Monatsabrechnungen der Demo-Daten)

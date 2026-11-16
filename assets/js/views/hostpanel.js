@@ -22,8 +22,8 @@ function localMap(it, others) {
   const osm = osmLocal(it.lon, it.lat, dLon * 1.1, dLat * 1.1, proj);
   const dots = others.map((o) => { const [x, y] = proj(o.lon, o.lat); return `<circle class="hp-other" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4"><title>${esc(o.name)}</title></circle>`; }).join('');
   const bar = 100 / mpp; // 100 m
-  return `<svg class="hp-map" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(t('hp.mapAria', { n: it.name }))}"><rect class="m-land" width="${W}" height="${H}"/>${lake}${osm ? `<path class="m-cr" d="${osm.creeks}"/><path class="m-rv" d="${osm.rivers}"/><path class="m-bld" d="${osm.buildings}"/>` : ''}${dots}
-    <circle class="hp-ring" cx="${W / 2}" cy="${H / 2}" r="15"/><circle class="hp-pt" cx="${W / 2}" cy="${H / 2}" r="7"/>
+  return `<svg class="hp-map" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(t('hp.mapAria', { n: it.name }))}"><rect class="m-land" width="${W}" height="${H}"/>${lake}${osm ? `<path class="m-cr" d="${osm.creeks}"/><path class="m-rv" d="${osm.rivers}"/><path class="m-bld" d="${osm.buildings}"/><path class="hp-bld" d="${osm.target}"/>` : ''}${dots}
+    <circle class="hp-ring" cx="${W / 2}" cy="${H / 2}" r="12"/><circle class="hp-pt" cx="${W / 2}" cy="${H / 2}" r="3.5"/>
     <g class="hp-scale"><path d="M12 ${H - 14}h${bar}M12 ${H - 18}v8M${12 + bar} ${H - 18}v8"/><text x="12" y="${H - 22}">100 m</text></g></svg>`;
 }
 

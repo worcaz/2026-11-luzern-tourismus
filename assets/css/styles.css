@@ -772,3 +772,6 @@ button.host-link { border: 0; background: none; padding: 0; font: inherit; color
 .hp-row dt { color: var(--muted); }
 .hp-row dd { margin: 0; font-weight: 550; }
 .hp-actions { margin-top: 16px; flex-wrap: wrap; }
+
+.hp-bld { fill: rgba(10, 37, 64, .72); stroke: var(--navy); stroke-width: 1.5; stroke-linejoin: round; }
+.hp-pt { fill: #fff; stroke: var(--navy); stroke-width: 1.5; }

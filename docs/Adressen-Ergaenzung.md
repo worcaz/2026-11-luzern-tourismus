@@ -21,8 +21,9 @@ Stand: 16.11.2026. Alle Betriebe, Preise und Zahlen im Prototyp sind teils echt 
    - `o` = Ortsmitte, geschätzt (Rückfall, aktuell nicht mehr nötig; Ortsmitten stehen in `tools/geo_listing.py`)
 4. **Mitgliederhotels angleichen.** `tools/apply_hotel_coords.py` ersetzt in `assets/js/hotels.js` Adresse und Kartenstandort der Mitgliederhotels durch die Angaben aus dem Verzeichnis. Die Zuordnung erfolgt über den normalisierten Namen (nur Buchstaben und Ziffern, mindestens 6 Zeichen) und die Gemeinde. Dadurch wurden 50 Hotels angepasst. Die früher von Hand geschätzten Standorte wichen um 80 bis 3000 Meter ab.
 5. **Gemeinde und Dubletten bestimmen.** `tools/enrich.py` ordnet jeden Eintrag über seine Koordinaten (Punkt-in-Polygon mit den echten Gemeindegrenzen aus `assets/data/geo/gemeinden.json`) einer Gemeinde zu (Feld `gm`, 297 Einträge im Kanton Luzern) und verweist auf das passende Mitgliederhotel (Feld `lh`, 50 Einträge), damit nichts doppelt erscheint.
-6. **In die App übernehmen.** Die App lädt `unterkuenfte.json` bei Bedarf (`assets/js/listing.js`): Die Kantonskarte zeigt je Gemeinde Zahl der Unterkünfte und Durchschnittspreis, die Kantons-Übersicht eine Kurzübersicht, die Seite «Unterkünfte» alle 718 Punkte. Die Stadt Luzern zeigt zusätzlich die 85 Einträge in der Stadt, die nicht zu den Mitgliederhotels gehören, im Register und auf der Stadtkarte. Kapazität und Logiernächte dieser Betriebe sind aus den Angaben des Verzeichnisses abgeleitet bzw. fiktiv, Preise stammen aus dem Verzeichnis.
-7. **Datenstand anheben.** In `assets/js/data.js` wurde `v` erhöht, damit der Browser den alten Demo-Stand (localStorage) verwirft.
+6. **Auf Gebäude einrasten.** `tools/snap.py` setzt Betriebe, die nicht auf einem Gebäude liegen, auf das nächstgelegene OpenStreetMap-Gebäude (höchstens 150 m entfernt (Demo-Betriebe 250 m); Punkt im Innern des Grundrisses). Betriebe, die schon in einem Gebäude liegen, bleiben unverändert, ebenso Ferienwohnungen mit nur PLZ und Ort. Das Skript bearbeitet das Verzeichnis, die Mitgliederhotels und die Demo-Betriebe H1–H6 und ist idempotent (`sn: 1` markiert verschobene Einträge).
+7. **In die App übernehmen.** Die App lädt `unterkuenfte.json` bei Bedarf (`assets/js/listing.js`): Die Kantonskarte zeigt je Gemeinde Zahl der Unterkünfte und Durchschnittspreis, die Kantons-Übersicht eine Kurzübersicht, die Seite «Unterkünfte» alle 718 Punkte. Die Stadt Luzern zeigt zusätzlich die 85 Einträge in der Stadt, die nicht zu den Mitgliederhotels gehören, im Register und auf der Stadtkarte. Kapazität und Logiernächte dieser Betriebe sind aus den Angaben des Verzeichnisses abgeleitet bzw. fiktiv, Preise stammen aus dem Verzeichnis.
+8. **Datenstand anheben.** In `assets/js/data.js` wurde `v` erhöht, damit der Browser den alten Demo-Stand (localStorage) verwirft.
 
 ## Ergebnis
 
@@ -48,6 +49,10 @@ python3 tools/merge.py
 python3 tools/apply_hotel_coords.py
 # 4. Gemeinde und Dubletten bestimmen
 python3 tools/enrich.py
+# 5. Auf Gebäude einrasten (nach merge.py und apply_hotel_coords.py, vor generate.py)
+python3 tools/snap.py
+# 6. Betriebsdaten neu erzeugen (siehe Datengenerierung.md)
+python3 tools/generate.py
 ```
 
 Die Skripte finden das Projektverzeichnis selbst. Für neue Betriebe müssen sie zuerst mit ID, Name und Ort in `assets/data/unterkuenfte.json` stehen.
