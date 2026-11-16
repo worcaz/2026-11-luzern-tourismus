@@ -51,7 +51,7 @@ Namen und Adressen der Betriebe stammen aus der öffentlichen Mitgliederliste vo
 
 ## Unterkunftsverzeichnis
 
-`assets/data/unterkuenfte.json` enthält die 718 Einträge des Unterkunftsverzeichnisses von luzern.com (Name, Ort, Sterne, «ab»-Preis; aus einer gespeicherten Seite ausgelesen, bei einigen Namen waren Umlaute beschädigt). Es gibt keine Strassenadressen und keine Koordinaten. Das Verzeichnis wird bei Bedarf nachgeladen und liefert auf der Kantonskarte Anzahl und Durchschnittspreis je Gemeinde sowie im Gemeinde-Register die Einträge der Stadt Luzern. Preise der Mitgliederhotels stammen aus dem Namensabgleich; wo sie fehlen, sind sie angenommen.
+`assets/data/unterkuenfte.json` enthält die 718 Einträge des Unterkunftsverzeichnisses von luzern.com (Name, Ort, Sterne, «ab»-Preis, Art, Kapazität, Ausstattung; aus einer gespeicherten Seite ausgelesen). Es gibt keine Strassenadressen und keine Koordinaten. Das Verzeichnis wird bei Bedarf nachgeladen und liefert auf der Kantonskarte Anzahl und Durchschnittspreis je Gemeinde sowie im Gemeinde-Register die Einträge der Stadt Luzern. Preise der Mitgliederhotels stammen aus dem Namensabgleich; wo sie fehlen, sind sie angenommen.
 
 ## Annahmen im Prototyp
 
