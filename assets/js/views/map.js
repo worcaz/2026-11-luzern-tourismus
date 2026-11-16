@@ -4,7 +4,7 @@ import { t } from '../i18n.js';
 import { icon } from '../icons.js';
 import { esc, num, chip, barChart } from '../ui.js';
 import { TARIFFS } from '../data.js';
-import { listingStats } from '../listing.js';
+import { listingStats, cityListing, asHost } from '../listing.js';
 import { geodata, geomPath, centroid, gemName } from '../geodata.js';
 import { ALERT_LOC, UNREG_GEO, MONTH_COUNT, REGIONS, MUNIS, K_VIEW, K_SHAPES, kProj, S_VIEW, sShapes, S_LABELS, sProj, HOST_GEO, HOST_OCT, profile, profileRaw } from '../geo.js';
 
@@ -47,11 +47,12 @@ export function cantonItems(level) {
 
 export function hostItems() {
   const raw = profileRaw('city');
-  return state.hosts.filter((h) => (HOST_GEO[h.id] && HOST_OCT[h.id]) || (h.lon && h.oct)).map((h) => {
+  const extra = (cityListing() || []).map(asHost);
+  return state.hosts.concat(extra).filter((h) => (HOST_GEO[h.id] && HOST_OCT[h.id]) || (h.lon && h.oct)).map((h) => {
     const geo = HOST_GEO[h.id] || { lon: h.lon, lat: h.lat };
     const oct = HOST_OCT[h.id] || h.oct;
     const rate = rateFor(h.cat).total;
-    return { id: h.id, name: h.name, address: h.address, cat: h.cat, rooms: h.rooms, beds: h.beds, lon: geo.lon, lat: geo.lat, rate, price: h.price || null, ppn: h.price ? h.price / 2 : (PPN[h.cat] || 80), monthly: raw.map((w) => oct * w / raw[9]) };
+    return { id: h.id, name: h.name, address: h.address, cat: h.cat, rooms: h.rooms, beds: h.beds, lon: geo.lon, lat: geo.lat, rate, price: h.price || null, ppn: h.ppn || (h.price ? h.price / 2 : (PPN[h.cat] || 80)), monthly: raw.map((w) => oct * w / raw[9]) };
   });
 }
 
@@ -163,7 +164,7 @@ function detail(scope, items, m, months, lang, flags = {}) {
   if (!canton) facts.push(`<div><span class="muted small">${esc(t('map.rev'))}</span><strong>${esc(fmt(list.reduce((a, it) => a + valueOf(it, months, 'rev', scope), 0), 'rev'))}</strong></div>`);
   let extra = '';
   if (!canton && item) {
-    extra = `<p class="muted small">${esc(item.address)}</p><div class="map-chips">${chip('neutral', t('cat.' + item.cat))}${chip('neutral', t('h.capacityV', { r: item.rooms, b: item.beds }))}${chip(item.price ? 'info' : 'neutral', item.price ? t('map.priceFrom', { p: item.price }) : t('map.priceAssumed', { p: Math.round(item.ppn * 2) }))}</div>`;
+    extra = `<p class="muted small">${esc(item.address)}</p><div class="map-chips">${chip('neutral', t('cat.' + item.cat))}${chip('neutral', item.rooms ? t('h.capacityV', { r: item.rooms, b: item.beds }) : t('m.persons', { n: item.beds }))}${chip(item.price ? 'info' : 'neutral', item.price ? t('map.priceFrom', { p: item.price }) : t('map.priceAssumed', { p: Math.round(item.ppn * 2) }))}</div>`;
   } else if (canton && item && item.members) {
     const rows = item.members.map((g) => ({ g, v: valueOf(g, months, m.metric, scope) })).sort((a, b) => b.v - a.v).slice(0, 6);
     const max = Math.max(...rows.map((r) => r.v), 1);
@@ -173,7 +174,8 @@ function detail(scope, items, m, months, lang, flags = {}) {
     extra = reg ? `<div class="map-chips">${chip('neutral', reg.name)}</div>` : '';
   }
   if (canton) {
-    const ls = listingStats(item ? (item.members ? item.members.map((g) => g.id) : [item.id]) : items.map((g) => g.id).concat(items.flatMap((g) => (g.members || []).map((x) => x.id))));
+    const nm = (x) => gemName(x.name);
+    const ls = listingStats(item ? (item.members ? item.members.map(nm) : [nm(item)]) : items.map(nm).concat(items.flatMap((g) => (g.members || []).map(nm))));
     if (ls && ls.count) extra += `<div class="map-chips">${chip('neutral', t('map.listed', { n: ls.count }))}${ls.avg ? chip('info', t('map.avgPrice', { p: ls.avg, n: ls.nPrices })) : ''}</div>`;
   }
   return `<div class="map-detail">

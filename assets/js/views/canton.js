@@ -5,7 +5,7 @@ import { esc, num, chf, kpi, chip, barChart, delta } from '../ui.js';
 import { CANTON_REGIONS } from '../data.js';
 import { REGION_YOY } from '../geo.js';
 import { insightsPage, cantonSeries } from './insights.js';
-import { staysPage } from './stays.js';
+import { staysPage, staysTeaser } from './stays.js';
 import { mapPage, mapTeaser } from './map.js';
 
 export function cantonNext() {
@@ -45,6 +45,7 @@ export function cantonView(tab, lang) {
       <section class="card"><div class="card-head"><h2>${esc(t('k.regions'))}</h2></div>${regions}</section>
     </div>
     ${mapTeaser('canton', lang)}
+    ${staysTeaser()}
     <section class="card"><div class="card-head"><h2>${esc(t('k.reports'))}</h2></div>
       <ul class="rows">${['k.r2', 'k.r3'].map((k) => `<li><div><strong>${esc(t(k))}</strong><span class="muted">${esc(t(k + 'T'))}</span></div><button class="btn btn-ghost btn-sm" data-action="toastInfo" data-arg="${esc(t('common.pdfToast'))}">${esc(t('common.download'))}</button></li>`).join('')}</ul></section>
     <p class="muted small foot-note">${icon('lock', 14)} ${esc(t('k.aggNote'))}</p>`,

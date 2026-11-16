@@ -6,7 +6,7 @@ import { MUNI_MONTHS, MUNI_MONTHS_PY, TARIFFS } from '../data.js';
 import { toggle } from './host.js';
 import { mapPage, mapTeaser } from './map.js';
 import { insightsPage } from './insights.js';
-import { listing } from '../listing.js';
+import { listing, cityListing } from '../listing.js';
 
 const MONTHS = (L) => Array.from({ length: 10 }, (_, i) => new Intl.DateTimeFormat(L, { month: 'short' }).format(new Date(2026, i, 15)));
 const openAlerts = () => state.alerts.filter((a) => a.status === 'open');
@@ -102,14 +102,14 @@ function hostsView() {
 function listingCard(q) {
   const d = listing();
   if (!d) return `<p class="muted small">${esc(t('m.listLoading'))}</p>`;
-  const rows = d.filter((o) => o.g === 'luzern' && (!q || o.n.toLowerCase().includes(q))).sort((a, b) => a.n.localeCompare(b.n, 'de'));
+  const rows = (cityListing() || []).filter((o) => !q || `${o.n} ${o.a || ''}`.toLowerCase().includes(q)).sort((a, b) => a.n.localeCompare(b.n, 'de'));
   const price = (o) => (o.p ? `${t('map.priceFromShort')} CHF ${num(o.p)} ${o.u === 'n' ? t('m.perNight') : t('m.perWeek')}` : '–');
   const cap = (o) => [o.pp ? t('m.persons', { n: o.pp }) : '', o.bd ? t('m.bedrooms', { n: o.bd }) : '', o.m2 ? `${o.m2} m²` : '', o.x || ''].filter(Boolean).join(' · ') || '–';
   const feats = (o) => (o.f || []).map((f) => chip('neutral', f)).join('');
   return `<section class="card p0"><div class="card-head pad"><h2>${esc(t('m.listTitle'))}</h2><span class="muted small">${rows.length}</span></div>
     <div class="pad-x"><p class="muted small">${esc(t('m.listNote'))}</p></div>
     <table class="tbl"><thead><tr><th>${esc(t('m.colHost'))}</th><th>${esc(t('m.listType'))}</th><th>${esc(t('m.listCap'))}</th><th>${esc(t('m.listPrice'))}</th></tr></thead><tbody>
-    ${rows.map((o) => `<tr><td data-label="${esc(t('m.colHost'))}"><strong>${esc(o.n)}</strong>${o.s ? ` <span class="stars" aria-label="${o.s} ${esc(t('m.listStars'))}">${'★'.repeat(o.s)}</span>` : ''}<div class="map-chips">${feats(o)}</div></td><td data-label="${esc(t('m.listType'))}">${esc(t('m.type.' + o.t))}</td><td data-label="${esc(t('m.listCap'))}">${esc(cap(o))}</td><td data-label="${esc(t('m.listPrice'))}">${esc(price(o))}</td></tr>`).join('')}
+    ${rows.map((o) => `<tr><td data-label="${esc(t('m.colHost'))}"><strong>${esc(o.n)}</strong><div class="muted small">${esc(o.a || o.o)}${o.q === 'p' ? ` ${esc(t('st.noStreet'))}` : ''}</div>${o.s ? ` <span class="stars" aria-label="${o.s} ${esc(t('m.listStars'))}">${'★'.repeat(o.s)}</span>` : ''}<div class="map-chips">${feats(o)}</div></td><td data-label="${esc(t('m.listType'))}">${esc(t('m.type.' + o.t))}</td><td data-label="${esc(t('m.listCap'))}">${esc(cap(o))}</td><td data-label="${esc(t('m.listPrice'))}">${esc(price(o))}</td></tr>`).join('')}
     </tbody></table></section>`;
 }
 

@@ -2,7 +2,7 @@
 import { state, update } from '../store.js';
 import { t } from '../i18n.js';
 import { icon } from '../icons.js';
-import { esc, num, chip } from '../ui.js';
+import { esc, num, chip, kpi } from '../ui.js';
 import { listing } from '../listing.js';
 import { CANTON_OUTLINE, SEMPACH, BALDEGG } from '../geo.js';
 import { geodata, geomPath } from '../geodata.js';
@@ -88,3 +88,15 @@ export const staysActions = {
   'st.type': (k) => setSt({ off: { ...st().off, [k]: !st().off[k] } }),
 };
 export const staysInputs = { stayQ: (v) => setSt({ q: v }) };
+
+// Hinweis auf der Kantons-Übersicht
+export function staysTeaser() {
+  const d = listing();
+  const n = d ? d.length : 718;
+  const hotels = d ? d.filter((o) => o.t === 'hotel').length : 0;
+  const nightly = d ? d.filter((o) => o.p && o.u === 'n').map((o) => o.p) : [];
+  const avg = nightly.length ? Math.round(nightly.reduce((a, b) => a + b, 0) / nightly.length) : null;
+  return `<section class="card"><div class="card-head"><h2>${icon('bed', 20)} ${esc(t('st.title'))}</h2></div>
+    <div class="grid-3 gap">${kpi(t('st.count'), num(n), t('st.teaserSub'))}${kpi(t('st.teaserHotels'), d ? num(hotels) : '–', t('st.teaserHotelsSub'))}${kpi(t('st.teaserAvg'), avg ? `CHF ${num(avg)}` : '–', t('st.teaserAvgSub', { n: nightly.length }))}</div>
+    <a class="btn btn-secondary btn-sm" href="#/kanton/unterkuenfte">${esc(t('map.open'))} ${icon('arrowRight', 16)}</a></section>`;
+}
