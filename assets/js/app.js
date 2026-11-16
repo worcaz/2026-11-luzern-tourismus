@@ -9,6 +9,8 @@ import { registerView, registerActions, registerInputs } from './views/register.
 import { muniView, muniActions } from './views/municipality.js';
 import { policeView, policeActions } from './views/police.js';
 import { cantonView } from './views/canton.js';
+import { mapActions, mapChanges } from './views/map.js';
+import { insightsActions } from './views/insights.js';
 import { homeView, processView } from './views/pages.js';
 import { renderTour, tourActions } from './tour.js';
 
@@ -21,9 +23,9 @@ setLang(state.lang);
 
 const NAV = {
   host: { base: '#/gastgeber', who: 'Sandra Meier', org: 'Hotel Seerose am Quai', items: [['', 'home', 'nav.overview'], ['ankuenfte', 'calendar', 'nav.arrivals'], ['meldungen', 'list', 'nav.reports'], ['abrechnungen', 'wallet', 'nav.invoices'], ['objekte', 'bed', 'nav.objects'], ['konto', 'user', 'nav.account']] },
-  municipality: { base: '#/gemeinde', who: 'Monika Achermann', org: 'Stadt Luzern · Tourismusabgaben', items: [['', 'home', 'nav.overview'], ['abrechnungen', 'wallet', 'nav.invoices'], ['auffaelligkeiten', 'alert', 'nav.alerts'], ['betriebe', 'database', 'nav.hosts'], ['tarife', 'sliders', 'nav.tariffs'], ['verteilung', 'chart', 'nav.distribution'], ['konto', 'user', 'nav.account']] },
+  municipality: { base: '#/gemeinde', who: 'Monika Achermann', org: 'Stadt Luzern · Tourismusabgaben', items: [['', 'home', 'nav.overview'], ['abrechnungen', 'wallet', 'nav.invoices'], ['auffaelligkeiten', 'alert', 'nav.alerts'], ['betriebe', 'database', 'nav.hosts'], ['karte', 'map', 'nav.map'], ['analyse', 'layers', 'nav.analysis'], ['tarife', 'sliders', 'nav.tariffs'], ['verteilung', 'chart', 'nav.distribution'], ['konto', 'user', 'nav.account']] },
   police: { base: '#/polizei', who: 'Kpl. Rahel Studer', org: 'Luzerner Polizei · GGP', items: [['suche', 'search', 'nav.search'], ['protokoll', 'list', 'nav.log'], ['konto', 'user', 'nav.account']] },
-  canton: { base: '#/kanton', who: 'Lea Bucher', org: 'Kanton Luzern / LTAG', items: [['', 'home', 'nav.overview'], ['konto', 'user', 'nav.account']] },
+  canton: { base: '#/kanton', who: 'Lea Bucher', org: 'Kanton Luzern / LTAG', items: [['', 'home', 'nav.overview'], ['karte', 'map', 'nav.map'], ['analyse', 'chart', 'nav.analysis'], ['konto', 'user', 'nav.account']] },
 };
 const SEG = { gastgeber: 'host', gemeinde: 'municipality', polizei: 'police', kanton: 'canton' };
 
@@ -171,7 +173,7 @@ function render() {
 
 // ---------- Aktionen ----------
 const ACTIONS = {
-  ...guestActions, ...hostActions, ...registerActions, ...muniActions, ...policeActions, ...tourActions,
+  ...guestActions, ...hostActions, ...registerActions, ...muniActions, ...policeActions, ...tourActions, ...mapActions, ...insightsActions,
   noop: () => {},
   closeDrawer: () => closeDrawer(),
   toastInfo: (arg) => toast(arg, 'info'),
@@ -182,6 +184,7 @@ const ACTIONS = {
 };
 const CHANGES = {
   ...guestChanges,
+  ...mapChanges,
   lang: (v) => { update((s) => { s.lang = v; }, { silent: true }); setLang(v); render(); },
 };
 const INPUTS = {
@@ -219,6 +222,7 @@ document.addEventListener('input', (e) => {
   if (el && INPUTS[el.dataset.input]) INPUTS[el.dataset.input](el.value);
 });
 document.addEventListener('keydown', (e) => {
+  if ((e.key === 'Enter' || e.key === ' ') && e.target.matches && e.target.matches('[role="button"][data-action]') && e.target.tagName !== 'BUTTON') { e.preventDefault(); e.target.click(); return; }
   if (e.key === 'Escape') { closeDrawer(); if (state.ui.menu) update((s) => { s.ui.menu = null; }); }
 });
 
