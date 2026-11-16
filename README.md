@@ -55,6 +55,10 @@ Namen und Adressen der Betriebe stammen aus der öffentlichen Mitgliederliste vo
 
 Die Seite «Unterkünfte» (`#/kanton/unterkuenfte`) zeigt alle 718 Einträge auf einer Karte der Zentralschweiz. Die Standorte sind Ortsmitten (leicht gestreut, geschätzt); nur 50 Einträge haben eine Adresse (aus der Mitgliederliste von Luzern Hotels). Skript-freie Rohdaten: `assets/data/unterkuenfte.json`, Felder `lo`/`la` (Koordinaten), `q` (`o` = Ortsmitte, `a` = Adresse bekannt).
 
+## Kartengrundlagen
+
+Gemeindegrenzen des Kantons Luzern (79 Gemeinden), Seen und Nachbarkantone liegen in `assets/data/geo/` (swissBOUNDARIES3D von swisstopo, über swiss-maps (BSD-3), vereinfacht; aus dem Projekt 2026-09-LU-Energieplanung übernommen). Die Karten laden sie bei Bedarf. Kreise liegen auf dem Flächenschwerpunkt der Gemeinde.
+
 ## Annahmen im Prototyp
 
 - Elektronische Meldung ohne Unterschrift; Beherbergende prüfen den Ausweis (VZAE-Vorentwurf 2026).

@@ -5,6 +5,7 @@ import { icon } from '../icons.js';
 import { esc, num, chip, barChart } from '../ui.js';
 import { TARIFFS } from '../data.js';
 import { listingStats } from '../listing.js';
+import { geodata, geomPath, centroid, gemName } from '../geodata.js';
 import { ALERT_LOC, UNREG_GEO, MONTH_COUNT, REGIONS, MUNIS, K_VIEW, K_SHAPES, kProj, S_VIEW, sShapes, S_LABELS, sProj, HOST_GEO, HOST_OCT, profile, profileRaw } from '../geo.js';
 
 const DEFAULTS = { metric: 'levy', level: 'muni', pt: 'year', pi: 0, sel: null, alerts: true, zoom: 'center' };
@@ -31,11 +32,16 @@ const KANTONAL = TARIFFS.kantonal;
 const PPN = { hotel45: 150, hotel13: 95, pension: 70, fewo: 60 }; // Annahme: CHF je Person und Nacht, falls kein Preis bekannt
 
 export function cantonItems(level) {
-  const base = MUNIS.map((g) => ({ id: g.id, name: g.name, r: g.r, lon: g.lon, lat: g.lat, monthly: profile(g.p).map((s) => g.n * 1000 * s) }));
+  const G = geodata();
+  const pos = (g) => { const f = G && G.byName[gemName(g.name)]; const c = f && centroid(f); return c ? { lon: c[0], lat: c[1] } : { lon: g.lon, lat: g.lat }; };
+  const base = MUNIS.map((g) => ({ id: g.id, name: g.name, r: g.r, ...pos(g), monthly: profile(g.p).map((s) => g.n * 1000 * s) }));
   if (level === 'muni') return base;
   return REGIONS.map((r) => {
     const members = base.filter((g) => g.r === r.id);
-    return { id: r.id, name: r.name, lon: r.lon, lat: r.lat, monthly: Array.from({ length: MONTH_COUNT }, (_, i) => members.reduce((s, g) => s + g.monthly[i], 0)), members };
+    const w = members.reduce((a, g) => a + g.monthly.reduce((x, y) => x + y, 0), 0) || 1;
+    const lon = G ? members.reduce((a, g) => a + g.lon * g.monthly.reduce((x, y) => x + y, 0), 0) / w : r.lon;
+    const lat = G ? members.reduce((a, g) => a + g.lat * g.monthly.reduce((x, y) => x + y, 0), 0) / w : r.lat;
+    return { id: r.id, name: r.name, lon, lat, monthly: Array.from({ length: MONTH_COUNT }, (_, i) => members.reduce((s, g) => s + g.monthly[i], 0)), members };
   });
 }
 
@@ -84,9 +90,19 @@ function svgMap(scope, items, vals, sel, { mini = false, flags = {}, zoom = 'all
   const max = Math.max(...vals, 1);
   const [rmin, rmax] = mini ? (canton ? [2, 13] : [3, 9]) : (canton ? [5, 44] : (zoom === 'center' ? [5, 15] : [4, 12]));
   const pts = items.map((it, i) => ({ it, v: vals[i], r: rmin + (rmax - rmin) * Math.sqrt(vals[i] / max), xy: proj(it.lon, it.lat) })).sort((a, b) => b.r - a.r);
+  const G = geodata();
+  const selNames = new Set();
+  if (G && sel) {
+    const hit = items.find((x) => x.id === sel);
+    if (hit) (hit.members ? hit.members : [hit]).forEach((g) => selNames.add(gemName(g.name)));
+  }
+  const withData = new Set(MUNIS.map((g) => gemName(g.name)));
+  const gemPaths = G ? G.gemeinden.features.map((f) => `<path class="m-gem ${withData.has(f.properties.name) ? 'has-data' : ''} ${selNames.has(f.properties.name) ? 'is-sel' : ''} ${!canton && f.properties.name === 'Luzern' ? 'is-own' : ''}" d="${geomPath(f.geometry, proj)}"><title>${esc(f.properties.name)}</title></path>`).join('') : '';
+  const lakePaths = G ? G.seen.features.map((f) => `<path class="m-water" d="${geomPath(f.geometry, proj)}"/>`).join('') : '';
   const shapes = canton
-    ? `<path class="m-land" d="${K_SHAPES.outline}"/>${K_SHAPES.lakes.map((d) => `<path class="m-water" d="${d}"/>`).join('')}`
-    : `<rect class="m-land" x="0" y="0" width="${view[2]}" height="${view[3]}"/><path class="m-water" d="${SS.lake}"/>${SS.rivers.map((d) => `<path class="m-river" d="${d}"/>`).join('')}`;
+    ? (G ? `${gemPaths}${lakePaths}` : `<path class="m-land" d="${K_SHAPES.outline}"/>${K_SHAPES.lakes.map((d) => `<path class="m-water" d="${d}"/>`).join('')}`)
+    : (G ? `<rect class="m-land" x="0" y="0" width="${view[2]}" height="${view[3]}"/>${gemPaths}${lakePaths}${SS.rivers.map((d) => `<path class="m-river" d="${d}"/>`).join('')}`
+         : `<rect class="m-land" x="0" y="0" width="${view[2]}" height="${view[3]}"/><path class="m-water" d="${SS.lake}"/>${SS.rivers.map((d) => `<path class="m-river" d="${d}"/>`).join('')}`);
   const labels = canton || mini ? '' : S_LABELS.map((l) => { const [x, y] = proj(l.lon, l.lat); return `<text class="m-place ${l.lake ? 'm-place-lake' : ''}" x="${x.toFixed(1)}" y="${y.toFixed(1)}">${esc(l.name)}</text>`; }).join('');
   const bubbles = pts.map(({ it, v, r, xy: [x, y] }) => {
     const on = sel === it.id;

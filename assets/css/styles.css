@@ -720,3 +720,11 @@ details[open] > summary .stage-chev { transform: rotate(180deg); }
 .st-list { max-height: 420px; }
 .st-row { grid-template-columns: minmax(0, 1fr) auto; }
 .st-detail { grid-template-columns: 1fr; }
+
+/* Gemeindegrenzen */
+.m-gem { fill: #F4F6F9; stroke: #C9D3E0; stroke-width: .8; stroke-linejoin: round; }
+.m-gem.has-data { fill: #E9F1FA; }
+.m-gem.is-sel { fill: #BBD6F2; stroke: var(--blue); stroke-width: 1.6; }
+.m-gem.is-own { fill: #E3EEF9; stroke: #7FA7CF; stroke-width: 1.6; }
+.m-kt { fill: #EBEEF3; stroke: #D3DAE4; stroke-width: .8; }
+.st-gem { fill: #fff; stroke-width: .5; }

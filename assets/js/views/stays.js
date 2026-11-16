@@ -5,6 +5,7 @@ import { icon } from '../icons.js';
 import { esc, num, chip } from '../ui.js';
 import { listing } from '../listing.js';
 import { CANTON_OUTLINE, SEMPACH, BALDEGG } from '../geo.js';
+import { geodata, geomPath } from '../geodata.js';
 
 const TYPES = ['hotel', 'fewo', 'bnb', 'hostel', 'group', 'camping'];
 const P = { lon0: 7.78, lat0: 47.40, s: 1000, c: 0.682 };
@@ -17,7 +18,13 @@ const LAKES = [
   [[8.515, 47.205], [8.535, 47.18], [8.525, 47.12], [8.48, 47.10], [8.47, 47.13], [8.50, 47.17]],
   SEMPACH, BALDEGG,
 ];
-const SHAPES = `<path class="m-canton" d="${path(CANTON_OUTLINE)}"/>${LAKES.map((l) => `<path class="m-water" d="${path(l)}"/>`).join('')}`;
+const FALLBACK = `<path class="m-canton" d="${path(CANTON_OUTLINE)}"/>${LAKES.map((l) => `<path class="m-water" d="${path(l)}"/>`).join('')}`;
+
+function shapes() {
+  const G = geodata();
+  if (!G) return FALLBACK;
+  return `${G.kantone.features.map((f) => `<path class="m-kt" d="${geomPath(f.geometry, proj)}"/>`).join('')}${G.gemeinden.features.map((f) => `<path class="m-gem st-gem" d="${geomPath(f.geometry, proj)}"/>`).join('')}${G.seen.features.map((f) => `<path class="m-water" d="${geomPath(f.geometry, proj)}"/>`).join('')}`;
+}
 
 const st = () => ({ q: '', off: {}, sel: null, zoom: 'all', ...(state.ui.stays || {}) });
 const setSt = (patch) => update((s) => { s.ui.stays = { ...st(), ...patch }; });
@@ -64,7 +71,7 @@ function staysBody(d) {
   return `<section class="card">
     <div class="map-ctl"><label class="search">${icon('search', 18)}<input type="search" value="${esc(x.q)}" placeholder="${esc(t('st.search'))}" data-input="stayQ" aria-label="${esc(t('common.search'))}"></label><div class="st-chips">${chips}</div><div class="sgc" role="group">${[['all', t('st.zAll')], ['lu', t('st.zLu')], ['see', t('st.zSee')]].map(([v, l]) => `<button type="button" class="sgc-b ${v === x.zoom ? 'is-on' : ''}" aria-pressed="${v === x.zoom}" data-action="st.zoom" data-arg="${v}">${esc(l)}</button>`).join('')}</div></div>
     <div class="map-grid">
-      <div class="map-wrap"><svg class="map-svg" viewBox="${VIEW.join(' ')}" role="group" aria-label="${esc(t('st.aria'))}">${SHAPES}${dots}</svg>
+      <div class="map-wrap"><svg class="map-svg" viewBox="${VIEW.join(' ')}" role="group" aria-label="${esc(t('st.aria'))}">${shapes()}${dots}</svg>
         <p class="muted small map-legend">${esc(t('st.legend', { n: inView.length, m: list.length - inView.length }))}</p></div>
       <div class="map-side"><div class="map-total"><span class="kpi-lbl">${esc(t('st.count'))}</span><strong>${num(list.length)}</strong><span class="muted small">${esc(t('st.withAddr', { n: withAddr, m: d.length }))}</span></div>
         <ol class="rank st-list">${rows.map((o) => `<li><button type="button" class="rank-row st-row ${o.id === x.sel ? 'is-sel' : ''}" data-action="st.sel" data-arg="${o.id}" aria-pressed="${o.id === x.sel}"><span class="rank-name">${esc(o.n)}<span class="muted small"> · ${esc(o.o)}</span></span><span class="rank-val small">${o.p ? 'CHF ' + num(o.p) : ''}</span></button></li>`).join('')}</ol>
