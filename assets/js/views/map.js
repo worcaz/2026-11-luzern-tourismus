@@ -4,6 +4,7 @@ import { t } from '../i18n.js';
 import { icon } from '../icons.js';
 import { esc, num, chip, barChart } from '../ui.js';
 import { TARIFFS } from '../data.js';
+import { listingStats } from '../listing.js';
 import { ALERT_LOC, UNREG_GEO, MONTH_COUNT, REGIONS, MUNIS, K_VIEW, K_SHAPES, kProj, S_VIEW, sShapes, S_LABELS, sProj, HOST_GEO, HOST_OCT, profile, profileRaw } from '../geo.js';
 
 const DEFAULTS = { metric: 'levy', level: 'muni', pt: 'year', pi: 0, sel: null, alerts: true, zoom: 'center' };
@@ -27,6 +28,7 @@ function periodLabel(m, lang) { const o = periodOptions(m, lang).find(([v]) => v
 
 // ---------- Daten ----------
 const KANTONAL = TARIFFS.kantonal;
+const PPN = { hotel45: 150, hotel13: 95, pension: 70, fewo: 60 }; // Annahme: CHF je Person und Nacht, falls kein Preis bekannt
 
 export function cantonItems(level) {
   const base = MUNIS.map((g) => ({ id: g.id, name: g.name, r: g.r, lon: g.lon, lat: g.lat, monthly: profile(g.p).map((s) => g.n * 1000 * s) }));
@@ -43,18 +45,19 @@ export function hostItems() {
     const geo = HOST_GEO[h.id] || { lon: h.lon, lat: h.lat };
     const oct = HOST_OCT[h.id] || h.oct;
     const rate = rateFor(h.cat).total;
-    return { id: h.id, name: h.name, address: h.address, cat: h.cat, rooms: h.rooms, beds: h.beds, lon: geo.lon, lat: geo.lat, rate, monthly: raw.map((w) => oct * w / raw[9]) };
+    return { id: h.id, name: h.name, address: h.address, cat: h.cat, rooms: h.rooms, beds: h.beds, lon: geo.lon, lat: geo.lat, rate, price: h.price || null, ppn: h.price ? h.price / 2 : (PPN[h.cat] || 80), monthly: raw.map((w) => oct * w / raw[9]) };
   });
 }
 
 function valueOf(item, months, metric, scope) {
   const nights = months.reduce((s, i) => s + item.monthly[i], 0);
   if (metric === 'nights') return nights;
+  if (metric === 'rev') return nights * (item.ppn || 0);
   return nights * (scope === 'canton' ? KANTONAL : item.rate);
 }
 
 function fmt(v, metric) {
-  if (metric === 'levy') {
+  if (metric === 'levy' || metric === 'rev') {
     if (v >= 1e6) return `CHF ${(v / 1e6).toFixed(2)} ${t('map.mio')}`;
     if (v >= 1e4) return `CHF ${Math.round(v / 1e3)} ${t('map.thou')}`;
     return `CHF ${num(Math.round(v))}`;
@@ -105,7 +108,7 @@ function controls(scope, m, lang) {
   const opts = periodOptions(m, lang);
   const sel = m.pt === 'year' ? `<span class="map-period muted">${esc(opts[0][1])}</span>` : `<label class="map-select"><span class="sr">${esc(t('map.period'))}</span><select data-change="map.pi" aria-label="${esc(t('map.period'))}">${opts.map(([v, l]) => `<option value="${scope}:${v}" ${v === m.pi ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select></label>`;
   return `<div class="map-ctl">
-    ${seg(scope, 'metric', m.metric, [['levy', t(canton ? 'map.levyK' : 'map.levyM')], ['nights', t('map.nights')]])}
+    ${seg(scope, 'metric', m.metric, [['levy', t(canton ? 'map.levyK' : 'map.levyM')], ['nights', t('map.nights')]].concat(canton ? [] : [['rev', t('map.rev')]]))}
     ${canton ? seg(scope, 'level', m.level, [['region', t('map.region')], ['muni', t('map.muni')]]) : ''}
     ${seg(scope, 'pt', m.pt, [['month', t('map.month')], ['quarter', t('map.quarter')], ['year', t('map.year')]])}
     ${sel}
@@ -129,7 +132,7 @@ function detail(scope, items, m, months, lang, flags = {}) {
   const alertBox = al ? `<div class="map-alert">${chip('err', t('al.' + al.type + '.title'), 'alert')}<p class="small">${esc(t('al.' + al.type + '.short'))}</p><a class="link" href="#/gemeinde/auffaelligkeiten">${esc(t('m.toAlerts'))} ${icon('chevronRight', 16)}</a></div>` : '';
   const monthly = Array.from({ length: MONTH_COUNT }, (_, i) => list.reduce((s, it) => s + valueOf(it, [i], m.metric, scope), 0));
   const div = canton ? 1000 : 1;
-  const unit = m.metric === 'levy' ? (canton ? t('map.unitKchf') : 'CHF') : (canton ? t('map.unitKn') : t('map.unitN'));
+  const unit = (m.metric === 'levy' || m.metric === 'rev') ? (canton ? t('map.unitKchf') : 'CHF') : (canton ? t('map.unitKn') : t('map.unitN'));
   const chartVals = monthly.map((v) => (canton ? Math.round((v / div) * 10) / 10 : Math.round(v)));
   const labels = Array.from({ length: MONTH_COUNT }, (_, i) => monthShort(i, lang));
   const sumNights = list.reduce((s, it) => s + valueOf(it, months, 'nights', scope), 0);
@@ -141,9 +144,10 @@ function detail(scope, items, m, months, lang, flags = {}) {
   const facts = [];
   facts.push(`<div><span class="muted small">${esc(t('map.nights'))}</span><strong>${esc(fmt(sumNights, 'nights'))}</strong></div>`);
   facts.push(`<div><span class="muted small">${esc(t(canton ? 'map.levyK' : 'map.levyM'))}</span><strong>${esc(fmt(sumLevy, 'levy'))}</strong></div>`);
+  if (!canton) facts.push(`<div><span class="muted small">${esc(t('map.rev'))}</span><strong>${esc(fmt(list.reduce((a, it) => a + valueOf(it, months, 'rev', scope), 0), 'rev'))}</strong></div>`);
   let extra = '';
   if (!canton && item) {
-    extra = `<p class="muted small">${esc(item.address)}</p><div class="map-chips">${chip('neutral', t('cat.' + item.cat))}${chip('neutral', t('h.capacityV', { r: item.rooms, b: item.beds }))}</div>`;
+    extra = `<p class="muted small">${esc(item.address)}</p><div class="map-chips">${chip('neutral', t('cat.' + item.cat))}${chip('neutral', t('h.capacityV', { r: item.rooms, b: item.beds }))}${chip(item.price ? 'info' : 'neutral', item.price ? t('map.priceFrom', { p: item.price }) : t('map.priceAssumed', { p: Math.round(item.ppn * 2) }))}</div>`;
   } else if (canton && item && item.members) {
     const rows = item.members.map((g) => ({ g, v: valueOf(g, months, m.metric, scope) })).sort((a, b) => b.v - a.v).slice(0, 6);
     const max = Math.max(...rows.map((r) => r.v), 1);
@@ -151,6 +155,10 @@ function detail(scope, items, m, months, lang, flags = {}) {
   } else if (canton && item) {
     const reg = REGIONS.find((r) => r.id === item.r);
     extra = reg ? `<div class="map-chips">${chip('neutral', reg.name)}</div>` : '';
+  }
+  if (canton) {
+    const ls = listingStats(item ? (item.members ? item.members.map((g) => g.id) : [item.id]) : items.map((g) => g.id).concat(items.flatMap((g) => (g.members || []).map((x) => x.id))));
+    if (ls && ls.count) extra += `<div class="map-chips">${chip('neutral', t('map.listed', { n: ls.count }))}${ls.avg ? chip('info', t('map.avgPrice', { p: ls.avg, n: ls.nPrices })) : ''}</div>`;
   }
   return `<div class="map-detail">
     <div><div class="map-dhead"><h3>${esc(title)}</h3>${item ? `<button type="button" class="btn btn-ghost btn-sm" data-action="map.sel" data-arg="${scope}:${esc(item.id)}">${esc(t('map.clear'))}</button>` : ''}</div>
@@ -176,7 +184,7 @@ export function mapCard(scope, lang) {
     <div class="card-head"><h2>${icon('map', 20)} ${esc(t(canton ? 'map.cardC' : 'map.cardM'))}</h2></div>
     ${controls(scope, m, lang)}
     <div class="map-grid">
-      <div class="map-wrap">${svgMap(scope, items.concat(pseudo), vals.concat(pseudo.map(() => 0)), m.sel, { flags, zoom: m.zoom })}<p class="muted small map-legend">${esc(t('map.legend', { m: t(m.metric === 'levy' ? (canton ? 'map.levyK' : 'map.levyM') : 'map.nights') }))} · ${esc(t('map.schematic'))}${m.alerts && !canton ? ` · <span class="rank-flag">!</span> ${esc(t('map.flagKey'))}` : ''}</p></div>
+      <div class="map-wrap">${svgMap(scope, items.concat(pseudo), vals.concat(pseudo.map(() => 0)), m.sel, { flags, zoom: m.zoom })}<p class="muted small map-legend">${esc(t('map.legend', { m: t(m.metric === 'levy' ? (canton ? 'map.levyK' : 'map.levyM') : m.metric === 'rev' ? 'map.rev' : 'map.nights') }))} · ${esc(t('map.schematic'))}${m.alerts && !canton ? ` · <span class="rank-flag">!</span> ${esc(t('map.flagKey'))}` : ''}</p></div>
       <div class="map-side">
         <div class="map-total"><span class="kpi-lbl">${esc(t('map.sum'))} · ${esc(periodLabel(m, lang))}</span><strong>${esc(fmt(total, m.metric))}</strong></div>
         <h3 class="map-sub">${esc(t('map.rank'))}</h3>

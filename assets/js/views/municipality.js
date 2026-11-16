@@ -6,6 +6,7 @@ import { MUNI_MONTHS, MUNI_MONTHS_PY, TARIFFS } from '../data.js';
 import { toggle } from './host.js';
 import { mapPage, mapTeaser } from './map.js';
 import { insightsPage } from './insights.js';
+import { listing } from '../listing.js';
 
 const MONTHS = (L) => Array.from({ length: 10 }, (_, i) => new Intl.DateTimeFormat(L, { month: 'short' }).format(new Date(2026, i, 15)));
 const openAlerts = () => state.alerts.filter((a) => a.status === 'open');
@@ -93,8 +94,21 @@ function hostsView() {
     body: `<div class="toolbar"><label class="search">${icon('search', 18)}<input type="search" value="${esc(state.ui.muniQ || '')}" placeholder="${esc(t('m.searchPh'))}" data-input="muniQ" aria-label="${esc(t('common.search'))}"></label>${chip('info', t('m.registerNote'), 'database')}</div>
     <section class="card p0"><table class="tbl"><thead><tr><th>${esc(t('m.colHost'))}</th><th>${esc(t('h.category'))}</th><th>${esc(t('h.capacity'))}</th><th>${esc(t('m.colChannel'))}</th></tr></thead><tbody>
     ${list.map((h) => `<tr><td data-label="${esc(t('m.colHost'))}"><strong>${esc(h.name)}</strong><div class="muted small">${esc(h.address)} · <span class="mono">${esc(h.objectNo)}</span></div></td><td data-label="${esc(t('h.category'))}">${esc(t('cat.' + h.cat))}</td><td data-label="${esc(t('h.capacity'))}">${esc(t('h.capacityV', { r: h.rooms, b: h.beds }))}</td><td data-label="${esc(t('m.colChannel'))}">${h.pms ? chip('ok', t('h.pms'), 'link') : chip('neutral', t('h.webapp'), 'phone')}</td></tr>`).join('')}
-    </tbody></table></section>`,
+    </tbody></table></section>
+    ${listingCard(q)}`,
   };
+}
+
+function listingCard(q) {
+  const d = listing();
+  if (!d) return `<p class="muted small">${esc(t('m.listLoading'))}</p>`;
+  const rows = d.filter((o) => o.g === 'luzern' && (!q || o.n.toLowerCase().includes(q))).sort((a, b) => a.n.localeCompare(b.n, 'de'));
+  const price = (o) => (o.p ? `${t('map.priceFromShort')} CHF ${num(o.p)} ${o.u === 'n' ? t('m.perNight') : t('m.perWeek')}` : '–');
+  return `<section class="card p0"><div class="card-head pad"><h2>${esc(t('m.listTitle'))}</h2><span class="muted small">${rows.length}</span></div>
+    <div class="pad-x"><p class="muted small">${esc(t('m.listNote'))}</p></div>
+    <table class="tbl"><thead><tr><th>${esc(t('m.colHost'))}</th><th>${esc(t('m.listStars'))}</th><th>${esc(t('m.listPrice'))}</th></tr></thead><tbody>
+    ${rows.map((o) => `<tr><td data-label="${esc(t('m.colHost'))}"><strong>${esc(o.n)}</strong><div class="muted small">${esc(o.o)}</div></td><td data-label="${esc(t('m.listStars'))}">${o.s ? '★'.repeat(o.s) : '–'}</td><td data-label="${esc(t('m.listPrice'))}">${esc(price(o))}</td></tr>`).join('')}
+    </tbody></table></section>`;
 }
 
 function tariffs() {
