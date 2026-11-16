@@ -87,12 +87,13 @@ export function qr(seed, size = 168) {
 }
 
 // ---------- Balkendiagramm ----------
-export function barChart(values, labels, { height = 180, unit = '', highlight = -1 } = {}) {
-  const max = Math.max(...values) * 1.1;
+export function barChart(values, labels, { height = 180, unit = '', highlight = -1, compare = null } = {}) {
+  const max = Math.max(...values, ...(compare || [])) * 1.1;
   const w = 100 / values.length;
+  const hl = Array.isArray(highlight) ? highlight : [highlight];
   const bars = values.map((v, i) => {
     const h = (v / max) * 100;
-    return `<div class="bar-col" style="width:${w}%"><div class="bar-track"><div class="bar ${i === highlight ? 'bar-hl' : ''}" style="height:${h}%" title="${esc(labels[i])}: ${esc(num(v))}${unit}"><span class="bar-val">${esc(num(v))}</span></div></div><div class="bar-lbl">${esc(labels[i])}</div></div>`;
+    return `<div class="bar-col" style="width:${w}%"><div class="bar-track">${compare ? `<span class="bar-cmp" style="bottom:${(compare[i] / max) * 100}%" title="${esc(t('m.legendPY'))}: ${esc(num(compare[i]))}"></span>` : ''}<div class="bar ${hl.includes(i) ? 'bar-hl' : ''}" style="height:${h}%" title="${esc(labels[i])}: ${esc(num(v))}${unit}"><span class="bar-val">${esc(num(v))}</span></div></div><div class="bar-lbl">${esc(labels[i])}</div></div>`;
   }).join('');
   return `<div class="barchart" style="height:${height}px">${bars}</div>`;
 }
@@ -102,8 +103,14 @@ export function hbars(items, { unit = '' } = {}) {
   return `<div class="hbars">${items.map((i) => `<div class="hbar-row"><div class="hbar-lbl">${esc(i.name)}</div><div class="hbar-track"><div class="hbar" style="width:${(i.v / max) * 100}%"></div></div><div class="hbar-val">${esc(num(i.v))}${unit}</div></div>`).join('')}</div>`;
 }
 
-export function kpi(label, value, sub, ic, kind = '') {
-  return `<div class="kpi ${kind}"><div class="kpi-lbl">${esc(label)}</div><div class="kpi-val">${esc(value)}</div>${sub ? `<div class="kpi-sub">${esc(sub)}</div>` : ''}</div>`;
+export const delta = (now, before, label) => {
+  const p = ((now - before) / before) * 100;
+  const up = p >= 0;
+  return `<span class="delta ${up ? 'delta-up' : 'delta-down'}"><b>${up ? '▲' : '▼'} ${Math.abs(p).toFixed(1)} %</b> ${esc(label)}</span>`;
+};
+
+export function kpi(label, value, sub, ic, kind = '', extra = '') {
+  return `<div class="kpi ${kind}"><div class="kpi-lbl">${esc(label)}</div><div class="kpi-val">${esc(value)}</div>${sub ? `<div class="kpi-sub">${esc(sub)}</div>` : ''}${extra ? `<div class="kpi-delta">${extra}</div>` : ''}</div>`;
 }
 
 export function field(name, label, { type = 'text', value = '', required = false, hint = '', options = null, err = '', autocomplete = '', attrs = '' } = {}) {

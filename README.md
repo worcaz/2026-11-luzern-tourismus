@@ -29,7 +29,7 @@ Jede Rollenansicht zeigt unter dem Titel eine schlanke **Prozesslinie** (Etappe 
 | 9 | Abrechnung prüfen und bezahlen | Gastgeber | manuell | `#/gastgeber/abrechnungen` |
 | 10 | Zahlungen überwachen, Ausnahmen klären | Gemeinde | teilautomatisch | `#/gemeinde`, `#/gemeinde/abrechnungen`, `#/gemeinde/auffaelligkeiten` |
 | 11 | Anteile verteilen | Plattform | automatisch | `#/gemeinde/verteilung` |
-| 12 | Aggregierte Kennzahlen | Kanton / LTAG | automatisch | `#/kanton` |
+| 12 | Aggregierte Kennzahlen | Kanton / LTAG | automatisch | `#/kanton`, Karte `#/kanton/karte` |
 | 13 | Daten nach Ablauf der Fristen löschen | Plattform | automatisch | Systemprotokoll auf `#/prozess` |
 
 ## Zusätzliche Funktionen (Annahmen)
@@ -40,6 +40,7 @@ Jede Rollenansicht zeigt unter dem Titel eine schlanke **Prozesslinie** (Etappe 
 - **Tarife und Befreiungen** zentral pro Gemeinde konfigurierbar
 - **Airbnb-Sammelabrechnung** gemäss bestehender Vereinbarung
 - **Zugriffsprotokoll** der Polizei, Zweck und Aktenzeichen sind Pflicht
+- **Karte** mit Umsätzen und Zeitfilter (Monat, Quartal, Jahr): Kanton sieht aggregierte Werte je Region/Gemeinde (`#/kanton/karte`), Gemeinde sieht jeden Betrieb am Standort (`#/gemeinde/karte`). Schematische SVG-Karte, keine externen Kartenkacheln
 - **Berichte** für Kanton/LTAG (Monatsbericht, Rapport Mittelverwendung, Open Data)
 
 ## Annahmen im Prototyp

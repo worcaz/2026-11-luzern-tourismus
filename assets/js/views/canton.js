@@ -3,6 +3,7 @@ import { t } from '../i18n.js';
 import { icon } from '../icons.js';
 import { esc, chf, kpi, chip, barChart, hbars } from '../ui.js';
 import { CANTON_REGIONS } from '../data.js';
+import { mapPage, mapTeaser } from './map.js';
 
 export function cantonNext() {
   return { title: t('k.next'), text: t('k.nextT'), cta: t('k.toReport'), action: 'toastInfo', arg: t('common.pdfToast'), icon: 'download', calm: true };
@@ -11,6 +12,7 @@ export function cantonNext() {
 export function cantonView(tab, lang) {
   if (!state.ui.cantonVisited) update(() => { state.ui.cantonVisited = true; }, { silent: true });
   if (tab === 'konto') return account();
+  if (tab === 'karte') return mapPage('canton', lang);
   const inv = state.invoices.find((i) => i.id === 'R-2026-10-H1');
   const extra = inv.status === 'paid' ? invoiceAmounts(inv).kantonal : 0;
   const months = Array.from({ length: 10 }, (_, i) => new Intl.DateTimeFormat(lang, { month: 'short' }).format(new Date(2026, i, 15)));
@@ -29,6 +31,7 @@ export function cantonView(tab, lang) {
       <section class="card"><div class="card-head"><h2>${esc(t('k.chart'))}</h2></div>${barChart(levy, months, { highlight: 9 })}<p class="muted small">${esc(t('k.chartNote'))}</p></section>
       <section class="card"><div class="card-head"><h2>${esc(t('k.regions'))}</h2></div>${hbars(CANTON_REGIONS, { unit: '' })}</section>
     </div>
+    ${mapTeaser('canton', lang)}
     <section class="card"><div class="card-head"><h2>${esc(t('k.reports'))}</h2></div>
       <ul class="rows">${['k.r2', 'k.r3'].map((k) => `<li><div><strong>${esc(t(k))}</strong><span class="muted">${esc(t(k + 'T'))}</span></div><button class="btn btn-ghost btn-sm" data-action="toastInfo" data-arg="${esc(t('common.pdfToast'))}">${esc(t('common.download'))}</button></li>`).join('')}</ul></section>
     <p class="muted small foot-note">${icon('lock', 14)} ${esc(t('k.aggNote'))}</p>`,

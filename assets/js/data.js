@@ -92,6 +92,7 @@ export function initialState() {
 
 // Aggregierte Kennzahlen (fiktiv)
 export const MUNI_MONTHS = [68.2, 71.9, 84.3, 101.4, 121.0, 138.6, 162.3, 165.1, 142.7, 118.4]; // Tsd. Logiernächte Stadt Luzern 2026
+export const MUNI_MONTHS_PY = [65.9, 69.1, 80.6, 96.2, 115.4, 131.0, 156.8, 160.9, 137.0, 112.0]; // Vorjahr 2025 (fiktiv)
 export const CANTON_REGIONS = [
   { name: 'Luzern-Vierwaldstättersee', v: 1412 },
   { name: 'Sempachersee', v: 141 },

@@ -1,9 +1,10 @@
 import { state, update, host, invoiceAmounts, feed } from '../store.js';
 import { t } from '../i18n.js';
 import { icon } from '../icons.js';
-import { esc, chf, num, fdate, fmonth, statusChip, kpi, toast, chip, barChart, openDrawer, closeDrawer, field } from '../ui.js';
-import { MUNI_MONTHS, TARIFFS } from '../data.js';
+import { delta, esc, chf, num, fdate, fmonth, statusChip, kpi, toast, chip, barChart, openDrawer, closeDrawer, field } from '../ui.js';
+import { MUNI_MONTHS, MUNI_MONTHS_PY, TARIFFS } from '../data.js';
 import { toggle } from './host.js';
+import { mapPage, mapTeaser } from './map.js';
 
 const MONTHS = (L) => Array.from({ length: 10 }, (_, i) => new Intl.DateTimeFormat(L, { month: 'short' }).format(new Date(2026, i, 15)));
 const openAlerts = () => state.alerts.filter((a) => a.status === 'open');
@@ -22,6 +23,7 @@ export function muniView(tab, lang) {
     case 'betriebe': return hostsView();
     case 'tarife': return tariffs();
     case 'verteilung': return distribution();
+    case 'karte': return mapPage('municipality', lang);
     case 'konto': return account();
     default: return overview(lang);
   }
@@ -41,15 +43,16 @@ function overview(lang) {
     sub: t('m.sub'),
     next: muniNext(),
     body: `<div class="grid-3 gap">
-      ${kpi(t('m.kNights'), '118 420', t('m.kNightsSub'), 'bed')}
+      ${kpi(t('m.kNights'), '118 420', t('m.kNightsSub'), 'bed', '', delta(MUNI_MONTHS[9], MUNI_MONTHS[8], t('m.vsPrev')) + delta(MUNI_MONTHS[9], MUNI_MONTHS_PY[9], t('m.vsYear')))}
       ${kpi(t('m.kBilled'), chf(tt.sum), t('m.kBilledSub'), 'file')}
       ${kpi(t('m.kPaid'), tt.pct + ' %', chf(tt.paid), 'checkCircle', 'kpi-ok')}
     </div>
     <div class="grid-2 gap">
-      <section class="card"><div class="card-head"><h2>${esc(t('m.chart'))}</h2></div>${barChart(MUNI_MONTHS, MONTHS(lang), { highlight: 9 })}<p class="muted small">${esc(t('m.chartNote'))}</p></section>
+      <section class="card"><div class="card-head"><h2>${esc(t('m.chart'))}</h2></div>${barChart(MUNI_MONTHS, MONTHS(lang), { highlight: 9, compare: MUNI_MONTHS_PY })}<p class="muted small"><span class="cmp-key"></span> ${esc(t('m.legendPY'))} · ${esc(t('m.chartNote'))}</p></section>
       <section class="card"><div class="card-head"><h2>${esc(t('m.alerts'))}</h2><a class="link" href="#/gemeinde/auffaelligkeiten">${esc(t('common.all'))} ${icon('chevronRight', 16)}</a></div>
         <ul class="rows">${state.alerts.map((a) => `<li><div><strong>${esc(t(`al.${a.type}.title`))}</strong><span class="muted">${esc(t(`al.${a.type}.short`))}</span></div>${a.status === 'done' ? statusChip('done') : ''}</li>`).join('')}</ul></section>
-    </div>`,
+    </div>
+    ${mapTeaser('municipality', lang)}`,
   };
 }
 
