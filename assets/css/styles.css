@@ -668,8 +668,8 @@ details[open] > summary .stage-chev { transform: rotate(180deg); }
 .delta-up b { color: var(--ok); }
 .delta-down b { color: var(--err); }
 .bar-track { position: relative; }
-.bar-cmp { position: absolute; left: 50%; transform: translateX(-50%); width: 100%; max-width: 34px; height: 0; border-top: 2px solid var(--navy); z-index: 2; pointer-events: none; }
-.cmp-key { display: inline-block; width: 14px; border-top: 2px solid var(--navy); vertical-align: middle; }
+.bar-cmp { position: absolute; left: 50%; transform: translateX(-50%); width: calc(100% + 4px); max-width: 44px; height: 4px; margin-bottom: -2px; background: #E07B00; border-radius: 2px; box-shadow: 0 0 0 1.5px #fff; z-index: 2; pointer-events: none; }
+.cmp-key { display: inline-block; width: 16px; height: 4px; background: #E07B00; border-radius: 2px; vertical-align: middle; }
 .map-detail .hbar-row { grid-template-columns: minmax(80px, 30%) 1fr auto; }
 .map-detail .hbar-val { white-space: nowrap; }
 
@@ -725,7 +725,7 @@ details[open] > summary .stage-chev { transform: rotate(180deg); }
 .m-gem { fill: #F4F6F9; stroke: #C9D3E0; stroke-width: .8; stroke-linejoin: round; }
 .m-gem.has-data { fill: #E9F1FA; }
 .m-gem.is-sel { fill: #BBD6F2; stroke: var(--blue); stroke-width: 1.6; }
-.m-gem.is-own { fill: #E3EEF9; stroke: #7FA7CF; stroke-width: 1.6; }
+.m-gem.is-own { fill: #F7F9FB; stroke: #7FA7CF; stroke-width: 1.6; }
 .m-kt { fill: #EBEEF3; stroke: #D3DAE4; stroke-width: .8; }
 .st-gem { fill: #fff; stroke-width: .5; }
 
@@ -739,3 +739,8 @@ details[open] > summary .stage-chev { transform: rotate(180deg); }
 .hist-key { display: inline-block; width: 12px; height: 8px; border-radius: 2px; background: #E3A7A1; vertical-align: middle; }
 .hist-key.is-part { background: var(--sky); }
 .hist-tbl { margin-top: 8px; }
+
+/* OpenStreetMap-Ebenen */
+.m-bld { fill: #C5CDD9; stroke: none; }
+.m-rv { fill: none; stroke: #7FAEDB; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.m-cr { fill: none; stroke: #B6D1EB; stroke-width: 1.1; stroke-linecap: round; stroke-linejoin: round; }

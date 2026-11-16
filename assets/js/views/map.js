@@ -6,7 +6,7 @@ import { esc, num, chip, barChart } from '../ui.js';
 import { TARIFFS } from '../data.js';
 import { listingStats, listingModel, cityListing, asHost } from '../listing.js';
 import { YEARS, TODAY, year12, monthsOf, priceFactor } from '../timeseries.js';
-import { geodata, geomPath, centroid, gemName } from '../geodata.js';
+import { geodata, geomPath, centroid, gemName, osmPaths } from '../geodata.js';
 import { REGION_YOY, ALERT_LOC, UNREG_GEO, MONTH_COUNT, REGIONS, MUNIS, K_VIEW, K_SHAPES, kProj, S_VIEW, sShapes, S_LABELS, sProj, HOST_GEO, HOST_OCT, profile, profileRaw } from '../geo.js';
 
 const DEFAULTS = { metric: 'levy', level: 'muni', pt: 'year', pi: 0, sel: null, alerts: true, zoom: 'center', year: 2026 };
@@ -106,7 +106,7 @@ function svgMap(scope, items, vals, sel, { mini = false, flags = {}, zoom = 'all
   const proj = canton ? kProj : sProj(zoom);
   const SS = canton ? null : sShapes(zoom);
   const max = Math.max(...vals, 1);
-  const [rmin, rmax] = mini ? (canton ? [2, 13] : [3, 9]) : (canton ? [5, 44] : (zoom === 'center' ? [5, 15] : [4, 12]));
+  const [rmin, rmax] = mini ? (canton ? [2, 13] : [3, 9]) : (canton ? [5, 44] : (zoom === 'center' ? [4, 11] : [3, 9]));
   const pts = items.map((it, i) => ({ it, v: vals[i], r: rmin + (rmax - rmin) * Math.sqrt(vals[i] / max), xy: proj(it.lon, it.lat) })).sort((a, b) => b.r - a.r);
   const G = geodata();
   const selNames = new Set();
@@ -115,11 +115,13 @@ function svgMap(scope, items, vals, sel, { mini = false, flags = {}, zoom = 'all
     if (hit) (hit.members ? hit.members : [hit]).forEach((g) => selNames.add(gemName(g.name)));
   }
   const withData = new Set(MUNIS.map((g) => gemName(g.name)));
-  const gemPaths = G ? G.gemeinden.features.map((f) => `<path class="m-gem ${withData.has(f.properties.name) ? 'has-data' : ''} ${selNames.has(f.properties.name) ? 'is-sel' : ''} ${!canton && f.properties.name === 'Luzern' ? 'is-own' : ''}" d="${geomPath(f.geometry, proj)}"><title>${esc(f.properties.name)}</title></path>`).join('') : '';
+  const gemPaths = G ? G.gemeinden.features.map((f) => `<path class="m-gem ${canton && withData.has(f.properties.name) ? 'has-data' : ''} ${selNames.has(f.properties.name) ? 'is-sel' : ''} ${!canton && f.properties.name === 'Luzern' ? 'is-own' : ''}" d="${geomPath(f.geometry, proj)}"><title>${esc(f.properties.name)}</title></path>`).join('') : '';
   const lakePaths = G ? G.seen.features.map((f) => `<path class="m-water" d="${geomPath(f.geometry, proj)}"/>`).join('') : '';
+  const osm = !canton && !mini ? osmPaths(zoom, proj) : null;
+  const osmLayer = osm ? `<path class="m-cr" d="${osm.creeks}"/><path class="m-rv" d="${osm.rivers}"/><path class="m-bld" d="${osm.buildings}"/>` : (SS ? SS.rivers.map((d) => `<path class="m-river" d="${d}"/>`).join('') : '');
   const shapes = canton
     ? (G ? `${gemPaths}${lakePaths}` : `<path class="m-land" d="${K_SHAPES.outline}"/>${K_SHAPES.lakes.map((d) => `<path class="m-water" d="${d}"/>`).join('')}`)
-    : (G ? `<rect class="m-land" x="0" y="0" width="${view[2]}" height="${view[3]}"/>${gemPaths}${lakePaths}${SS.rivers.map((d) => `<path class="m-river" d="${d}"/>`).join('')}`
+    : (G ? `<rect class="m-land" x="0" y="0" width="${view[2]}" height="${view[3]}"/>${gemPaths}${lakePaths}${osmLayer}`
          : `<rect class="m-land" x="0" y="0" width="${view[2]}" height="${view[3]}"/><path class="m-water" d="${SS.lake}"/>${SS.rivers.map((d) => `<path class="m-river" d="${d}"/>`).join('')}`);
   const labels = canton || mini ? '' : S_LABELS.map((l) => { const [x, y] = proj(l.lon, l.lat); return `<text class="m-place ${l.lake ? 'm-place-lake' : ''}" x="${x.toFixed(1)}" y="${y.toFixed(1)}">${esc(l.name)}</text>`; }).join('');
   const bubbles = pts.map(({ it, v, r, xy: [x, y] }) => {
@@ -220,7 +222,7 @@ export function mapCard(scope, lang) {
     <div class="card-head"><h2>${icon('map', 20)} ${esc(t(canton ? 'map.cardC' : 'map.cardM'))}</h2></div>
     ${controls(scope, m, lang)}
     <div class="map-grid">
-      <div class="map-wrap">${svgMap(scope, items.concat(pseudo), vals.concat(pseudo.map(() => 0)), m.sel, { flags, zoom: m.zoom })}<p class="muted small map-legend">${esc(t('map.legend', { m: t(m.metric === 'levy' ? (canton ? 'map.levyK' : 'map.levyM') : m.metric === 'rev' ? 'map.rev' : 'map.nights') }))} · ${esc(t('map.schematic'))}${m.alerts && !canton ? ` · <span class="rank-flag">!</span> ${esc(t('map.flagKey'))}` : ''}</p></div>
+      <div class="map-wrap">${svgMap(scope, items.concat(pseudo), vals.concat(pseudo.map(() => 0)), m.sel, { flags, zoom: m.zoom })}<p class="muted small map-legend">${esc(t('map.legend', { m: t(m.metric === 'levy' ? (canton ? 'map.levyK' : 'map.levyM') : m.metric === 'rev' ? 'map.rev' : 'map.nights') }))} · ${esc(t('map.schematic'))}${m.alerts && !canton ? ` · <span class="rank-flag">!</span> ${esc(t('map.flagKey'))}` : ''}${!canton ? ` · ${esc(t('map.osm'))}` : ''}</p></div>
       <div class="map-side">
         <div class="map-total"><span class="kpi-lbl">${esc(t('map.sum'))} · ${esc(periodLabel(m, lang))}</span><strong>${esc(fmt(total, m.metric))}</strong></div>
         <h3 class="map-sub">${esc(t('map.rank'))}</h3>

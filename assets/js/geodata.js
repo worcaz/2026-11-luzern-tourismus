@@ -46,3 +46,49 @@ export function centroid(feature) {
 // Gemeindename der Kartendaten → Name in swissBOUNDARIES3D
 export const GEM_NAME = { 'Flühli-Sörenberg': 'Flühli', Eschenbach: 'Eschenbach' };
 export const gemName = (n) => GEM_NAME[n] || n;
+
+// ---------- Gebäude und Fliessgewässer (OpenStreetMap) für die Stadtkarte ----------
+// Quelle: OpenStreetMap-Mitwirkende (ODbL), Auszug aus dem Projekt 2026-09-LU-Energieplanung.
+// Format: Gebäude und Linien = [x0, y0, dx1, dy1, ...] in 1e-5 Grad ab o = [8.25, 46.995]; Gebäuderinge werden beim Zeichnen geschlossen.
+let O = null;
+let opending = false;
+const pathCache = {};
+
+export function osmdata() {
+  if (O) return O;
+  if (!opending) {
+    opending = true;
+    fetch('assets/data/geo/osm-luzern.json').then((r) => r.json()).then((d) => { O = d; update(() => {}); }).catch(() => { opending = false; });
+  }
+  return null;
+}
+
+function decodeAbs(a) {
+  const pts = [[a[0], a[1]]];
+  let x = a[0], y = a[1];
+  for (let k = 2; k < a.length; k += 2) { x += a[k]; y += a[k + 1]; pts.push([x, y]); }
+  return pts;
+}
+
+// SVG-Pfade (Gebäude, Flüsse, Bäche) für eine Projektion; je Ausschnitt einmal berechnet
+export function osmPaths(zoom, proj) {
+  const d = osmdata();
+  if (!d) return null;
+  if (pathCache[zoom]) return pathCache[zoom];
+  const [ox, oy] = d.o;
+  const P = ([x, y]) => { const [px, py] = proj(ox + x / 1e5, oy + y / 1e5); return `${px.toFixed(1)} ${py.toFixed(1)}`; };
+  const minExt = zoom === 'center' ? 0 : 16; // im Gesamtbild nur grössere Gebäude (ab ca. 17 m)
+  let b = '';
+  for (const a of d.b) {
+    const pts = decodeAbs(a);
+    if (minExt) {
+      let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
+      for (const [x, y] of pts) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+      if (x1 - x0 < minExt && y1 - y0 < minExt) continue;
+    }
+    b += 'M' + pts.map(P).join('L') + 'Z';
+  }
+  const lines = (arr) => arr.map((a) => 'M' + decodeAbs(a).map(P).join('L')).join('');
+  pathCache[zoom] = { buildings: b, rivers: lines(d.r), creeks: zoom === 'center' ? lines(d.s) : '' };
+  return pathCache[zoom];
+}
