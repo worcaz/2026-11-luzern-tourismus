@@ -668,8 +668,6 @@ details[open] > summary .stage-chev { transform: rotate(180deg); }
 .delta-up b { color: var(--ok); }
 .delta-down b { color: var(--err); }
 .bar-track { position: relative; }
-.bar-cmp { position: absolute; left: 50%; transform: translateX(-50%); width: calc(100% + 4px); max-width: 44px; height: 4px; margin-bottom: -2px; background: #E07B00; border-radius: 2px; box-shadow: 0 0 0 1.5px #fff; z-index: 2; pointer-events: none; }
-.cmp-key { display: inline-block; width: 16px; height: 4px; background: #E07B00; border-radius: 2px; vertical-align: middle; }
 .map-detail .hbar-row { grid-template-columns: minmax(80px, 30%) 1fr auto; }
 .map-detail .hbar-val { white-space: nowrap; }
 
@@ -744,3 +742,12 @@ details[open] > summary .stage-chev { transform: rotate(180deg); }
 .m-bld { fill: #C5CDD9; stroke: none; }
 .m-rv { fill: none; stroke: #7FAEDB; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
 .m-cr { fill: none; stroke: #B6D1EB; stroke-width: 1.1; stroke-linecap: round; stroke-linejoin: round; }
+
+/* Balkenpaar: Vorjahr (grau) neben aktuellem Wert */
+.bar-pair { gap: 3px; padding: 0 1px; }
+.bar-pair .bar { max-width: 17px; flex: 1; }
+.bar-py { background: #D3D9E2; }
+.bar-py:hover { background: #C1C9D5; }
+.bar-pair .bar:not(.bar-py):not(.bar-hl):not(.bar-ghost) { background: #7FB3E6; }
+.bar-pair .bar:not(.bar-py):not(.bar-hl):not(.bar-ghost):hover { background: #5FA0DD; }
+.cmp-key { display: inline-block; width: 11px; height: 11px; border-radius: 3px; background: #D3D9E2; vertical-align: -1px; }

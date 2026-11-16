@@ -93,7 +93,8 @@ export function barChart(values, labels, { height = 180, unit = '', highlight = 
   const hl = Array.isArray(highlight) ? highlight : [highlight];
   const bars = values.map((v, i) => {
     const h = (v / max) * 100;
-    return `<div class="bar-col" style="width:${w}%"><div class="bar-track">${compare ? `<span class="bar-cmp" style="bottom:${(compare[i] / max) * 100}%" title="${esc(t('m.legendPY'))}: ${esc(num(compare[i]))}"></span>` : ''}<div class="bar ${hl.includes(i) ? 'bar-hl' : ''} ${ghost.includes(i) ? 'bar-ghost' : ''}" style="height:${h}%" title="${esc(labels[i])}: ${esc(num(v))}${unit}"><span class="bar-val">${esc(num(v))}</span></div></div><div class="bar-lbl">${esc(labels[i])}</div></div>`;
+    const py = compare ? `<div class="bar bar-py" style="height:${(compare[i] / max) * 100}%" title="${esc(t('m.legendPYShort'))} · ${esc(labels[i])}: ${esc(num(compare[i]))}${unit}"></div>` : '';
+    return `<div class="bar-col" style="width:${w}%"><div class="bar-track ${compare ? 'bar-pair' : ''}">${py}<div class="bar ${hl.includes(i) ? 'bar-hl' : ''} ${ghost.includes(i) ? 'bar-ghost' : ''}" style="height:${h}%" title="${esc(labels[i])}: ${esc(num(v))}${unit}"><span class="bar-val">${esc(num(v))}</span></div></div><div class="bar-lbl">${esc(labels[i])}</div></div>`;
   }).join('');
   return `<div class="barchart" style="height:${height}px">${bars}</div>`;
 }
