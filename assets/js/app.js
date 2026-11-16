@@ -12,6 +12,7 @@ import { cantonView } from './views/canton.js';
 import { mapActions, mapChanges } from './views/map.js';
 import { insightsActions } from './views/insights.js';
 import { staysActions, staysInputs } from './views/stays.js';
+import { openHostPanel } from './views/hostpanel.js';
 import { homeView, processView } from './views/pages.js';
 import { renderTour, tourActions } from './tour.js';
 
@@ -174,7 +175,7 @@ function render() {
 
 // ---------- Aktionen ----------
 const ACTIONS = {
-  ...guestActions, ...hostActions, ...registerActions, ...muniActions, ...policeActions, ...tourActions, ...mapActions, ...insightsActions, ...staysActions,
+  ...guestActions, ...hostActions, ...registerActions, ...muniActions, ...policeActions, ...tourActions, ...mapActions, ...insightsActions, ...staysActions, 'reg.panel': (id) => openHostPanel(id),
   noop: () => {},
   closeDrawer: () => closeDrawer(),
   toastInfo: (arg) => toast(arg, 'info'),

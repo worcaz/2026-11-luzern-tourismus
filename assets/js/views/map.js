@@ -5,6 +5,7 @@ import { icon } from '../icons.js';
 import { esc, num, chip, barChart } from '../ui.js';
 import { TARIFFS } from '../data.js';
 import { listingStats, listingModel, cityListing, asHost } from '../listing.js';
+import { closeDrawer } from '../ui.js';
 import { YEARS, TODAY, year12, monthsOf, priceFactor } from '../timeseries.js';
 import { geodata, geomPath, centroid, gemName, osmPaths } from '../geodata.js';
 import { REGION_YOY, ALERT_LOC, UNREG_GEO, MONTH_COUNT, REGIONS, MUNIS, K_VIEW, K_SHAPES, kProj, S_VIEW, sShapes, S_LABELS, sProj, HOST_GEO, HOST_OCT, profile, profileRaw } from '../geo.js';
@@ -256,12 +257,20 @@ export function mapPage(scope, lang) {
 
 // ---------- Aktionen ----------
 const split = (arg) => { const i = String(arg).indexOf(':'); return [arg.slice(0, i), arg.slice(i + 1)]; };
+// Kennzahlen eines Betriebs 2026 (Januar bis 16.11.)
+export function hostFigures(it) {
+  const months = Array.from({ length: monthsOf(TODAY.year) }, (_, i) => i);
+  return { nights: valueOf(it, months, 'nights', 'municipality', TODAY.year), levy: valueOf(it, months, 'levy', 'municipality', TODAY.year) };
+}
+
 // Zentrumsausschnitt der Stadtkarte (lon 8.2815-8.3485, lat 47.0351-47.0665)
 const inCentre = (lo, la) => lo > 8.2815 && lo < 8.3485 && la > 47.0351 && la < 47.0665;
 export const mapActions = {
   // Vom Register aus: Betrieb auf der Stadtkarte auswählen und anzeigen
   'reg.showOnMap': (id) => {
     const it = hostItems().find((x) => x.id === id);
+    closeDrawer();
+    location.hash = '#/gemeinde/karte';
     setM('municipality', { sel: id, zoom: it && inCentre(it.lon, it.lat) ? 'center' : 'all', year: TODAY.year, pt: 'year', alerts: mst('municipality').alerts });
   },
   'map.sel': (arg) => { const [sc, id] = split(arg); setM(sc, { sel: mst(sc).sel === id ? null : id }); },

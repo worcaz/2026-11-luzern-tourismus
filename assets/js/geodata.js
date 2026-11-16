@@ -92,3 +92,22 @@ export function osmPaths(zoom, proj) {
   pathCache[zoom] = { buildings: b, rivers: lines(d.r), creeks: zoom === 'center' ? lines(d.s) : '' };
   return pathCache[zoom];
 }
+
+// Ausschnitt um einen Punkt (Gebäude, Flüsse, Bäche) für Minikarten; proj: (lon, lat) → [x, y], d = halbe Breite/Höhe in Grad
+export function osmLocal(lon, lat, dLon, dLat, proj) {
+  const d = osmdata();
+  if (!d) return null;
+  const [ox, oy] = d.o;
+  const near = (x, y) => Math.abs(ox + x / 1e5 - lon) < dLon && Math.abs(oy + y / 1e5 - lat) < dLat;
+  const P = ([x, y]) => { const [px, py] = proj(ox + x / 1e5, oy + y / 1e5); return `${px.toFixed(1)} ${py.toFixed(1)}`; };
+  let buildings = '';
+  for (const a of d.b) {
+    if (!near(a[0], a[1])) continue;
+    buildings += 'M' + decodeAbs(a).map(P).join('L') + 'Z';
+  }
+  const lines = (arr) => arr.map((a) => {
+    const pts = decodeAbs(a).filter(([x, y]) => Math.abs(ox + x / 1e5 - lon) < dLon * 2 && Math.abs(oy + y / 1e5 - lat) < dLat * 2);
+    return pts.length > 1 ? 'M' + pts.map(P).join('L') : '';
+  }).join('');
+  return { buildings, rivers: lines(d.r), creeks: lines(d.s) };
+}

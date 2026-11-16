@@ -757,3 +757,18 @@ details[open] > summary .stage-chev { transform: rotate(180deg); }
 .host-link:hover strong { color: var(--blue); text-decoration: underline; }
 .host-pin { display: inline-flex; color: var(--blue); opacity: .55; }
 .host-link:hover .host-pin { opacity: 1; }
+
+/* Seitenpanel Betrieb */
+button.host-link { border: 0; background: none; padding: 0; font: inherit; color: inherit; cursor: pointer; text-align: left; }
+.hp-map { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: var(--r-sm); background: #fff; }
+.hp-attr { margin: 4px 0 10px; }
+.hp-pt { fill: var(--navy); stroke: #fff; stroke-width: 2; }
+.hp-ring { fill: none; stroke: var(--navy); stroke-width: 1.5; stroke-dasharray: 3 3; }
+.hp-other { fill: #7FB3E6; stroke: #fff; stroke-width: 1; }
+.hp-scale path { stroke: var(--ink-2); stroke-width: 1.5; fill: none; }
+.hp-scale text { font-size: 11px; fill: var(--ink-2); }
+.hp-dl { margin: 12px 0; }
+.hp-row { display: grid; grid-template-columns: 150px 1fr; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--line-2); font-size: 14px; }
+.hp-row dt { color: var(--muted); }
+.hp-row dd { margin: 0; font-weight: 550; }
+.hp-actions { margin-top: 16px; flex-wrap: wrap; }

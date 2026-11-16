@@ -3,6 +3,7 @@ import { t } from '../i18n.js';
 import { icon } from '../icons.js';
 import { delta, esc, chf, num, fdate, fmonth, statusChip, kpi, toast, chip, barChart, openDrawer, closeDrawer, field } from '../ui.js';
 import { HOST_GEO } from '../geo.js';
+import { osmdata, geodata } from '../geodata.js';
 import { MUNI_MONTHS, MUNI_MONTHS_PY, TARIFFS } from '../data.js';
 import { toggle } from './host.js';
 import { mapPage, mapTeaser } from './map.js';
@@ -90,10 +91,11 @@ function alerts() {
 
 // Betriebsname mit Sprung auf die Karte (wählt den Betrieb dort aus)
 function mapLink(id, name, ok) {
-  return ok ? `<a class="host-link" href="#/gemeinde/karte" data-action="reg.showOnMap" data-arg="${esc(id)}" title="${esc(t('m.showOnMap'))}"><strong>${esc(name)}</strong> <span class="host-pin">${icon('map', 15)}<span class="sr">${esc(t('m.showOnMap'))}</span></span></a>` : `<strong>${esc(name)}</strong>`;
+  return ok ? `<button type="button" class="host-link" data-action="reg.panel" data-arg="${esc(id)}" title="${esc(t('hp.open'))}"><strong>${esc(name)}</strong> <span class="host-pin">${icon('map', 15)}</span></button>` : `<strong>${esc(name)}</strong>`;
 }
 
 function hostsView() {
+  osmdata(); geodata(); // Kartendaten für das Seitenpanel vorladen
   const q = (state.ui.muniQ || '').toLowerCase();
   const list = state.hosts.filter((h) => h.municipality === 'Luzern').filter((h) => !q || `${h.name} ${h.address} ${h.objectNo}`.toLowerCase().includes(q));
   return {
