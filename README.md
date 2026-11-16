@@ -53,11 +53,7 @@ Namen und Adressen der Betriebe stammen aus der öffentlichen Mitgliederliste vo
 
 `assets/data/unterkuenfte.json` enthält die 718 Einträge des Unterkunftsverzeichnisses von luzern.com (Name, Ort, Sterne, «ab»-Preis, Art, Kapazität, Ausstattung; aus einer gespeicherten Seite ausgelesen). Es gibt keine Strassenadressen und keine Koordinaten. Das Verzeichnis wird bei Bedarf nachgeladen und liefert auf der Kantonskarte Anzahl und Durchschnittspreis je Gemeinde sowie im Gemeinde-Register die Einträge der Stadt Luzern. Preise der Mitgliederhotels stammen aus dem Namensabgleich; wo sie fehlen, sind sie angenommen.
 
-Die Seite «Unterkünfte» (`#/kanton/unterkuenfte`) zeigt alle 718 Einträge auf einer Karte der Zentralschweiz. Die Standorte sind Ortsmitten (leicht gestreut, geschätzt); nur 50 Einträge haben eine Adresse (aus der Mitgliederliste von Luzern Hotels). Skript-freie Rohdaten: `assets/data/unterkuenfte.json`, Felder `lo`/`la` (Koordinaten), `q` (`o` = Ortsmitte, `a` = Adresse bekannt).
-
-## Kartengrundlagen
-
-Gemeindegrenzen des Kantons Luzern (79 Gemeinden), Seen und Nachbarkantone liegen in `assets/data/geo/` (swissBOUNDARIES3D von swisstopo, über swiss-maps (BSD-3), vereinfacht; aus dem Projekt 2026-09-LU-Energieplanung übernommen). Die Karten laden sie bei Bedarf. Kreise liegen auf dem Flächenschwerpunkt der Gemeinde.
+Die Seite «Unterkünfte» (`#/kanton/unterkuenfte`) zeigt alle 718 Einträge auf einer Karte der Zentralschweiz. Adresse und Koordinaten stammen von den Detailseiten der Quelle (openbooking.ch, einmalig ausgelesen): 319 Einträge haben eine Strassenadresse (alle Hotels, B&B, Hostels, Gruppenunterkünfte und 30 Ferienwohnungen), bei 399 Ferienwohnungen nur PLZ und Ort mit den von der Quelle angegebenen (ungefähren) Koordinaten. Felder in `assets/data/unterkuenfte.json`: `a` Adresse, `lo`/`la` Koordinaten, `q` (`a` = Strassenadresse, `p` = nur PLZ/Ort, `o` = Ortsmitte geschätzt).
 
 ## Annahmen im Prototyp
 
