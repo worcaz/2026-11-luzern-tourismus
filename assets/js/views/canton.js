@@ -5,6 +5,7 @@ import { esc, num, chf, kpi, chip, barChart, delta } from '../ui.js';
 import { CANTON_REGIONS } from '../data.js';
 import { REGION_YOY } from '../geo.js';
 import { insightsPage, cantonSeries } from './insights.js';
+import { staysPage } from './stays.js';
 import { mapPage, mapTeaser } from './map.js';
 
 export function cantonNext() {
@@ -14,6 +15,7 @@ export function cantonNext() {
 export function cantonView(tab, lang) {
   if (!state.ui.cantonVisited) update(() => { state.ui.cantonVisited = true; }, { silent: true });
   if (tab === 'konto') return account();
+  if (tab === 'unterkuenfte') return staysPage();
   if (tab === 'analyse') return insightsPage('canton', lang);
   if (tab === 'karte') return mapPage('canton', lang);
   const inv = state.invoices.find((i) => i.id === 'R-2026-10-H1');
