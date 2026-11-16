@@ -6,6 +6,7 @@ import { MUNI_MONTHS, MUNI_MONTHS_PY, TARIFFS } from '../data.js';
 import { toggle } from './host.js';
 import { mapPage, mapTeaser } from './map.js';
 import { insightsPage } from './insights.js';
+import { historyCard } from './history.js';
 import { listing, cityListing } from '../listing.js';
 
 const MONTHS = (L) => Array.from({ length: 10 }, (_, i) => new Intl.DateTimeFormat(L, { month: 'short' }).format(new Date(2026, i, 15)));
@@ -55,6 +56,7 @@ function overview(lang) {
       <section class="card"><div class="card-head"><h2>${esc(t('m.alerts'))}</h2><a class="link" href="#/gemeinde/auffaelligkeiten">${esc(t('common.all'))} ${icon('chevronRight', 16)}</a></div>
         <ul class="rows">${state.alerts.map((a) => `<li><div><strong>${esc(t(`al.${a.type}.title`))}</strong><span class="muted">${esc(t(`al.${a.type}.short`))}</span></div>${a.status === 'done' ? statusChip('done') : ''}</li>`).join('')}</ul></section>
     </div>
+    ${historyCard('municipality', lang)}
     ${mapTeaser('municipality', lang)}`,
   };
 }

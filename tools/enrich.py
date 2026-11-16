@@ -26,7 +26,15 @@ def gemeinde(lo, la):
     for name, poly, x0, x1, y0, y1 in polys:
         if x0 <= lo <= x1 and y0 <= la <= y1 and inside(lo, la, poly[0]) and not any(inside(lo, la, h) for h in poly[1:]):
             return name
-    return None
+    # Uferlage: die vereinfachten Grenzen enden teils im See. Nächste Gemeinde bis ca. 1.5 km
+    best, bd = None, 0.015
+    for name, poly, x0, x1, y0, y1 in polys:
+        if x0 - bd <= lo <= x1 + bd and y0 - bd <= la <= y1 + bd:
+            for x, y in poly[0]:
+                dd = ((x - lo) * 0.682) ** 2 + (y - la) ** 2
+                if dd < bd * bd:
+                    bd = dd ** 0.5; best = name
+    return best
 
 def norm(s):
     return re.sub(r'[^a-z0-9]', '', unicodedata.normalize('NFKD', s.lower()).encode('ascii', 'ignore').decode())

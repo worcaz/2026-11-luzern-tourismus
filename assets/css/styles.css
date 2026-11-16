@@ -728,3 +728,14 @@ details[open] > summary .stage-chev { transform: rotate(180deg); }
 .m-gem.is-own { fill: #E3EEF9; stroke: #7FA7CF; stroke-width: 1.6; }
 .m-kt { fill: #EBEEF3; stroke: #D3DAE4; stroke-width: .8; }
 .st-gem { fill: #fff; stroke-width: .5; }
+
+/* Zeitreihe seit 2020 */
+.hist { display: flex; align-items: flex-end; gap: 1px; height: 150px; padding-bottom: 20px; position: relative; margin: 8px 0 4px; }
+.hist-col { flex: 1; height: 100%; display: flex; align-items: flex-end; position: relative; min-width: 0; }
+.hist-bar { width: 100%; background: var(--blue); border-radius: 2px 2px 0 0; min-height: 1px; }
+.hist-bar.is-covid { background: #E3A7A1; }
+.hist-bar.is-part { background: var(--sky); }
+.hist-yr { position: absolute; bottom: -18px; left: 0; font-size: 11px; color: var(--muted); }
+.hist-key { display: inline-block; width: 12px; height: 8px; border-radius: 2px; background: #E3A7A1; vertical-align: middle; }
+.hist-key.is-part { background: var(--sky); }
+.hist-tbl { margin-top: 8px; }

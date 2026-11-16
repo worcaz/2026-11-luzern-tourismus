@@ -4,8 +4,10 @@ import { t } from '../i18n.js';
 import { icon } from '../icons.js';
 import { esc, num, kpi, delta, barChart } from '../ui.js';
 import { MUNIS, REGIONS, REGION_YOY, MONTH_COUNT } from '../geo.js';
+import { gemName } from '../geodata.js';
 import { MUNI_MONTHS, MUNI_MONTHS_PY } from '../data.js';
-import { cantonItems } from './map.js';
+import { cantonItems, hostItems } from './map.js';
+import { listingModel } from '../listing.js';
 
 const KANTONAL = 1.10;
 const CITY_RATE = 3.6; // Ø Abgaben je Logiernacht Stadt Luzern (Schätzung)
@@ -64,6 +66,8 @@ function forecastCard(scope, lang) {
 const ORIGINS = ['ch', 'de', 'us', 'asia', 'eu', 'oth'];
 const MIX = { R1: [22, 14, 17, 17, 18, 12], R2: [58, 20, 3, 3, 12, 4], R3: [60, 19, 3, 3, 11, 4], R4: [66, 16, 2, 2, 11, 3], R5: [64, 20, 2, 2, 9, 3], CITY: [20, 13, 19, 19, 18, 11] };
 const SEASON = [[1.25, 1.1, 0.8, 0.7, 1, 0.9], [0.95, 1, 1.05, 1.1, 1, 1], [0.8, 0.95, 1.25, 1.3, 1.05, 1.1], [1.1, 1.05, 1, 0.9, 1, 1]];
+// Herkunft nach Jahr: Corona verschob die Anteile stark zu Gästen aus der Schweiz und Deutschland
+const YEAR_MULT = { 2020: [1.9, 1.2, 0.35, 0.30, 0.6, 0.5], 2021: [1.8, 1.2, 0.35, 0.15, 0.7, 0.5], 2022: [1.3, 1.1, 0.85, 0.45, 0.95, 0.8], 2023: [1.1, 1.0, 1.0, 0.8, 1.0, 0.95], 2024: [1.05, 1.0, 1.02, 0.95, 1.0, 1.0], 2025: [1, 1, 1, 1, 1, 1], 2026: [1, 1, 1, 1, 1, 1] };
 const QUARTERS = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [9]];
 const norm = (a) => { const s = sum(a); return a.map((v) => (v / s) * 100); };
 
@@ -104,6 +108,9 @@ function originCard(scope, lang) {
     <div class="olegend">${legend}</div>
     <h3 class="map-sub">${esc(t('ins.bySeason'))}</h3>
     <div class="oblock">${rows.map((r, q) => `<div class="orow"><div class="orow-l">${esc(qLabel(q))}</div>${stack(r)}</div>`).join('')}</div>
+    <h3 class="map-sub">${esc(t('ins.byYear'))}</h3>
+    <div class="oblock">${Object.keys(YEAR_MULT).map((y) => { const base = canton ? norm(REGIONS.reduce((a, r) => a.map((v, i) => v + MIX[r.id][i]), Array(ORIGINS.length).fill(0))) : MIX.CITY; return `<div class="orow"><div class="orow-l">${y}</div>${stack(norm(base.map((v, i) => v * YEAR_MULT[y][i])))}</div>`; }).join('')}</div>
+    <p class="muted small">${esc(t('ins.byYearNote'))}</p>
     ${canton ? `<h3 class="map-sub">${esc(t('ins.byRegion'))}</h3><div class="oblock">${regionRows}</div>` : ''}
     <p class="muted small">${esc(t('ins.originNote'))}</p></section>`;
 }
@@ -111,13 +118,23 @@ function originCard(scope, lang) {
 // ---------- Aufenthaltsdauer und Auslastung ----------
 const BASE = { city: [0.58, 2.0], lake: [0.46, 2.6], rural: [0.33, 1.9], alpine: [0.38, 3.6] };
 const hash = (s) => { let h = 0; for (const c of s) h = (h * 31 + c.charCodeAt(0)) >>> 0; return h; };
+const STAY = { hotel: 1.9, bnb: 1.8, hostel: 1.6, fewo: 4.8, group: 2.5, camping: 3.0 };
 function muniStats() {
-  return MUNIS.map((g) => {
+  const model = listingModel();
+  const items = cantonItems('muni');
+  return MUNIS.map((g, idx) => {
     const h = hash(g.id);
+    const mo = model && model[gemName(g.name)];
+    const nights = items[idx].monthly.reduce((a, b) => a + b, 0);
+    if (mo && mo.count >= 2) {
+      // Belegung und Aufenthaltsdauer aus den Betrieben des Verzeichnisses
+      const occ = mo.sum / (mo.beds * 304);
+      const stay = Object.entries(mo.types).reduce((a, [t, n]) => a + (STAY[t] || 2) * n, 0) / mo.sum;
+      return { id: g.id, name: g.name, r: g.r, nights, stay, beds: nights / (304 * occ) };
+    }
     const [o, st] = BASE[g.p];
     const occ = o + ((h % 9) - 4) / 100;
     const stay = Math.max(1.4, st + (((h >> 3) % 7) - 3) / 10);
-    const nights = g.n * 1000;
     return { id: g.id, name: g.name, r: g.r, nights, stay, beds: nights / (304 * occ) };
   });
 }
@@ -144,9 +161,16 @@ function stayCard(scope) {
     const tot = aggregate(ms);
     body = `<table class="tbl">${head(t(level === 'region' ? 'map.region' : 'map.muni'))}<tbody>${rows.map((r) => statRow(r.name, r.nights, r.stay, r.occ, max)).join('')}</tbody><tfoot>${statRow(t('map.allC'), tot.nights, tot.stay, tot.occ, max).replace('<tr>', '<tr class="tr-total">')}</tfoot></table>`;
   } else {
-    const cats = [['hotel45', 2.1, 0.74, 0.34], ['hotel13', 1.9, 0.68, 0.24], ['pension', 2.5, 0.52, 0.12], ['fewo', 4.2, 0.45, 0.30]];
-    const total = sum(MUNI_MONTHS) * 1000;
-    body = `<table class="tbl">${head(t('h.category'))}<tbody>${cats.map(([k, st, oc, sh]) => statRow(t('cat.' + k), total * sh, st, oc, 0.8)).join('')}</tbody><tfoot>${statRow(t('ins.cityAll'), total, 2.2, 0.59, 0.8).replace('<tr>', '<tr class="tr-total">')}</tfoot></table>`;
+    const hosts = hostItems().filter((h) => h.rooms !== undefined);
+    const groups = ['hotel45', 'hotel13', 'pension', 'fewo'].map((k, i) => {
+      const hs = hosts.filter((h) => h.cat === k && h.beds);
+      const nights = hs.reduce((a, h) => a + h.monthly.reduce((x, y) => x + y, 0), 0);
+      const beds = hs.reduce((a, h) => a + h.beds, 0);
+      return [k, [2.1, 1.9, 2.5, 4.2][i], beds ? nights / (beds * 304) : 0, nights];
+    });
+    const total = groups.reduce((a, g) => a + g[3], 0);
+    const totBeds = hosts.reduce((a, h) => a + (h.beds || 0), 0);
+    body = `<table class="tbl">${head(t('h.category'))}<tbody>${groups.map(([k, st, oc, n]) => statRow(t('cat.' + k), n, st, oc, 0.8)).join('')}</tbody><tfoot>${statRow(t('ins.cityAll'), total, 2.2, totBeds ? total / (totBeds * 304) : 0, 0.8).replace('<tr>', '<tr class="tr-total">')}</tfoot></table>`;
   }
   const toggle = canton ? `<div class="sgc" role="group">${[['region', t('map.region')], ['muni', t('map.muni')]].map(([v, l]) => `<button type="button" class="sgc-b ${v === level ? 'is-on' : ''}" aria-pressed="${v === level}" data-action="ana.level" data-arg="${v}">${esc(l)}</button>`).join('')}</div>` : '';
   return `<section class="card p0"><div class="card-head pad"><h2>${icon('bed', 20)} ${esc(t('ins.stayTitle'))}</h2>${toggle}</div>

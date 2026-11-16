@@ -5,7 +5,9 @@ import { esc, num, chf, kpi, chip, barChart, delta } from '../ui.js';
 import { CANTON_REGIONS } from '../data.js';
 import { REGION_YOY } from '../geo.js';
 import { insightsPage, cantonSeries } from './insights.js';
+import { cantonItems } from './map.js';
 import { staysPage, staysTeaser } from './stays.js';
+import { historyCard } from './history.js';
 import { mapPage, mapTeaser } from './map.js';
 
 export function cantonNext() {
@@ -25,10 +27,11 @@ export function cantonView(tab, lang) {
   const levy = ser.nights.map((n) => Math.round((n * 1.10) / 1000));
   const levyPY = ser.py.map((n) => Math.round((n * 1.10) / 1000));
   const sum = (a) => a.reduce((x, y) => x + y, 0);
-  const ytd = 2079000 + extra;
+  const ytd = ser.nights.reduce((x, y) => x + y, 0) * 1.10 + extra;
   const dNights = delta(sum(ser.nights), sum(ser.py), t('m.vsYear')) + delta(ser.nights[9], ser.nights[8], t('m.vsPrev'));
   const dLevy = delta(sum(ser.nights), sum(ser.py), t('m.vsYear')) + delta(levy[9], levy[8], t('m.vsPrev'));
-  const regionRows = CANTON_REGIONS.map((r, i) => ({ ...r, g: REGION_YOY['R' + (i + 1)] }));
+  const regItems = cantonItems('region');
+  const regionRows = regItems.map((r, i) => ({ name: r.name, v: Math.round(r.monthly.reduce((a, b) => a + b, 0) / 1000), g: REGION_YOY['R' + (i + 1)] }));
   const rmax = Math.max(...regionRows.map((r) => r.v));
   const regions = `<div class="hbars">${regionRows.map((r) => `<div class="hbar-row hbar-d"><div class="hbar-lbl">${esc(r.name)}</div><div class="hbar-track"><div class="hbar" style="width:${(r.v / rmax) * 100}%"></div></div><div class="hbar-val">${esc(num(r.v))}</div><div class="hbar-delta ${r.g >= 0 ? 'delta-up' : 'delta-down'}"><b>${r.g >= 0 ? '▲' : '▼'} ${Math.abs(r.g * 100).toFixed(1)} %</b></div></div>`).join('')}</div><p class="muted small">${esc(t('k.regionsPY'))}</p>`;
   return {
@@ -36,7 +39,7 @@ export function cantonView(tab, lang) {
     sub: t('k.sub'),
     next: cantonNext(),
     body: `<div class="grid-3 gap">
-      ${kpi(t('k.kNights'), '1.89 Mio.', t('k.kNightsSub'), '', '', dNights)}
+      ${kpi(t('k.kNights'), (ser.nights.reduce((x, y) => x + y, 0) / 1e6).toFixed(2) + ' Mio.', t('k.kNightsSub'), '', '', dNights)}
       ${kpi(t('k.kLevy'), 'CHF ' + (ytd / 1e6).toFixed(2) + ' Mio.', t('k.kLevySub'), '', '', dLevy)}
       ${kpi(t('k.kDigital'), '87 %', t('k.kDigitalSub'))}
     </div>
@@ -44,6 +47,7 @@ export function cantonView(tab, lang) {
       <section class="card"><div class="card-head"><h2>${esc(t('k.chart'))}</h2></div>${barChart(levy, months, { highlight: 9, compare: levyPY })}<p class="muted small"><span class="cmp-key"></span> ${esc(t('m.legendPY'))} · ${esc(t('k.chartNote'))}</p></section>
       <section class="card"><div class="card-head"><h2>${esc(t('k.regions'))}</h2></div>${regions}</section>
     </div>
+    ${historyCard('canton', lang)}
     ${mapTeaser('canton', lang)}
     ${staysTeaser()}
     <section class="card"><div class="card-head"><h2>${esc(t('k.reports'))}</h2></div>
