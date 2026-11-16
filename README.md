@@ -49,10 +49,6 @@ Jede Rollenansicht zeigt unter dem Titel eine schlanke **Prozesslinie** (Etappe 
 
 Namen und Adressen der Betriebe stammen aus der öffentlichen Mitgliederliste von Luzern Hotels (Stand Oktober 2025, `assets/js/hotels.js`). Kategorie, Zimmer, Betten, Logiernächte und Abgaben sind fiktiv; Standorte auf der Karte sind aus Strasse und Quartier näherungsweise geschätzt. Betriebe ausserhalb der Stadt Luzern sind im Register, aber nicht auf der Stadtkarte.
 
-## Unterkunftsverzeichnis
-
-`assets/data/unterkuenfte.json` enthält die 718 Einträge des Unterkunftsverzeichnisses von luzern.com (Name, Ort, Sterne, «ab»-Preis; aus einer gespeicherten Seite ausgelesen, bei einigen Namen waren Umlaute beschädigt). Es gibt keine Strassenadressen und keine Koordinaten. Das Verzeichnis wird bei Bedarf nachgeladen und liefert auf der Kantonskarte Anzahl und Durchschnittspreis je Gemeinde sowie im Gemeinde-Register die Einträge der Stadt Luzern. Preise der Mitgliederhotels stammen aus dem Namensabgleich; wo sie fehlen, sind sie angenommen.
-
 ## Annahmen im Prototyp
 
 - Elektronische Meldung ohne Unterschrift; Beherbergende prüfen den Ausweis (VZAE-Vorentwurf 2026).
