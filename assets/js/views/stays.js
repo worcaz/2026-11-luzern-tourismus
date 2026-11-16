@@ -39,10 +39,10 @@ const price = (o) => (o.p ? `${t('map.priceFromShort')} CHF ${num(o.p)} ${o.u ==
 function detail(o) {
   if (!o) return `<p class="muted">${esc(t('st.pick'))}</p>`;
   const cap = [o.pp ? t('m.persons', { n: o.pp }) : '', o.bd ? t('m.bedrooms', { n: o.bd }) : '', o.m2 ? `${o.m2} m²` : '', o.x || ''].filter(Boolean).join(' · ');
-  const addr = o.a ? `<strong>${esc(o.a)}</strong>` : `<span class="muted">${esc(t('st.noAddr', { o: o.o }))}</span>`;
+  const addr = o.a ? `<strong>${esc(o.a)}</strong>${o.q === 'a' ? '' : ` <span class="muted">${esc(t('st.noStreet'))}</span>`}` : `<span class="muted">${esc(t('st.noAddr', { o: o.o }))}</span>`;
   return `<div class="map-dhead"><h3>${esc(o.n)}${o.s ? ` <span class="stars">${'★'.repeat(o.s)}</span>` : ''}</h3><button type="button" class="btn btn-ghost btn-sm" data-action="st.sel" data-arg="${o.id}">${esc(t('map.clear'))}</button></div>
     <p class="small">${addr}</p>
-    <div class="map-chips">${chip('info', t('m.type.' + o.t))}${o.q === 'a' ? chip('ok', t('st.addrOk')) : chip('neutral', t('st.locApprox'))}${(o.f || []).map((f) => chip('neutral', f)).join('')}</div>
+    <div class="map-chips">${chip('info', t('m.type.' + o.t))}${o.q === 'a' ? chip('ok', t('st.addrOk')) : o.q === 'p' ? chip('info', t('st.locSource')) : chip('neutral', t('st.locApprox'))}${(o.f || []).map((f) => chip('neutral', f)).join('')}</div>
     <div class="map-facts"><div><span class="muted small">${esc(t('m.listPrice'))}</span><strong>${esc(price(o))}</strong></div>${cap ? `<div><span class="muted small">${esc(t('m.listCap'))}</span><strong>${esc(cap)}</strong></div>` : ''}</div>`;
 }
 
@@ -67,7 +67,7 @@ function staysBody(d) {
   const counts = Object.fromEntries(TYPES.map((k) => [k, d.filter((o) => o.t === k).length]));
   const chips = TYPES.map((k) => `<button type="button" class="tgl st-tgl ${x.off[k] ? '' : 'is-on'}" aria-pressed="${!x.off[k]}" data-action="st.type" data-arg="${k}"><i class="st-dot t-${k}"></i>${esc(t('m.type.' + k))} <span class="muted">${counts[k]}</span></button>`).join('');
   const rows = list.slice().sort((a, b) => a.n.localeCompare(b.n, 'de')).slice(0, 80);
-  const withAddr = d.filter((o) => o.a).length;
+  const withAddr = d.filter((o) => o.q === 'a').length;
   return `<section class="card">
     <div class="map-ctl"><label class="search">${icon('search', 18)}<input type="search" value="${esc(x.q)}" placeholder="${esc(t('st.search'))}" data-input="stayQ" aria-label="${esc(t('common.search'))}"></label><div class="st-chips">${chips}</div><div class="sgc" role="group">${[['all', t('st.zAll')], ['lu', t('st.zLu')], ['see', t('st.zSee')]].map(([v, l]) => `<button type="button" class="sgc-b ${v === x.zoom ? 'is-on' : ''}" aria-pressed="${v === x.zoom}" data-action="st.zoom" data-arg="${v}">${esc(l)}</button>`).join('')}</div></div>
     <div class="map-grid">
