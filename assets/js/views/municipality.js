@@ -5,6 +5,7 @@ import { delta, esc, chf, num, fdate, fmonth, statusChip, kpi, toast, chip, barC
 import { MUNI_MONTHS, MUNI_MONTHS_PY, TARIFFS } from '../data.js';
 import { toggle } from './host.js';
 import { mapPage, mapTeaser } from './map.js';
+import { insightsPage } from './insights.js';
 
 const MONTHS = (L) => Array.from({ length: 10 }, (_, i) => new Intl.DateTimeFormat(L, { month: 'short' }).format(new Date(2026, i, 15)));
 const openAlerts = () => state.alerts.filter((a) => a.status === 'open');
@@ -23,6 +24,7 @@ export function muniView(tab, lang) {
     case 'betriebe': return hostsView();
     case 'tarife': return tariffs();
     case 'verteilung': return distribution();
+    case 'analyse': return insightsPage('municipality', lang);
     case 'karte': return mapPage('municipality', lang);
     case 'konto': return account();
     default: return overview(lang);

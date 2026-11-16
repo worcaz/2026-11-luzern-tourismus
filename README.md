@@ -41,6 +41,8 @@ Jede Rollenansicht zeigt unter dem Titel eine schlanke **Prozesslinie** (Etappe 
 - **Airbnb-Sammelabrechnung** gemäss bestehender Vereinbarung
 - **Zugriffsprotokoll** der Polizei, Zweck und Aktenzeichen sind Pflicht
 - **Karte** mit Umsätzen und Zeitfilter (Monat, Quartal, Jahr): Kanton sieht aggregierte Werte je Region/Gemeinde (`#/kanton/karte`), Gemeinde sieht jeden Betrieb am Standort (`#/gemeinde/karte`). Schematische SVG-Karte, keine externen Kartenkacheln
+- **Analysen** (`#/kanton/analyse`, `#/gemeinde/analyse`): Prognose Ertrag bis Jahresende, Herkunft der Gäste nach Saison und Region, Aufenthaltsdauer und Bettenauslastung
+- **Trends** (Vormonat, Vorjahr) auf den Übersichten von Kanton und Gemeinde; **Auffälligkeiten** werden auf der Gemeindekarte rot markiert
 - **Berichte** für Kanton/LTAG (Monatsbericht, Rapport Mittelverwendung, Open Data)
 
 ## Annahmen im Prototyp

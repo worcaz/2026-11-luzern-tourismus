@@ -104,3 +104,10 @@ export const HOST_GEO = {
 };
 // Logiernächte Oktober 2026 je Betrieb (aus den Monatsabrechnungen der Demo-Daten)
 export const HOST_OCT = { H1: 2846, H2: 1180, H3: 96, H4: 512, H5: 41, H6: 388 };
+
+// Veränderung der Logiernächte gegenüber Vorjahr je Region (fiktiv)
+export const REGION_YOY = { R1: 0.057, R2: 0.031, R3: 0.012, R4: -0.024, R5: 0.089 };
+
+// Alert-Zuordnung zu Standorten (Demo): A1 = Inserat ohne Registrierung (kein Betrieb)
+export const ALERT_LOC = { A1: 'unreg', A2: 'H5', A3: 'H3', A4: 'H4' };
+export const UNREG_GEO = { lon: 8.3070, lat: 47.0562 };
