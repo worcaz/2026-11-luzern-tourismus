@@ -652,6 +652,7 @@ const D = {
   'ins.byYear': ['Nach Jahr seit 2020, Anteil in %', 'Par année depuis 2020, part en %', 'Per anno dal 2020, quota in %', 'By year since 2020, share in %'],
   'ins.byYearNote': ['2020 und 2021 dominierten Gäste aus der Schweiz und Deutschland. Gäste aus Asien und den USA kehrten ab 2022 zurück.', 'En 2020 et 2021, les hôtes de Suisse et d’Allemagne dominaient. Les hôtes d’Asie et des États-Unis sont revenus dès 2022.', 'Nel 2020 e 2021 dominavano gli ospiti da Svizzera e Germania. Quelli da Asia e USA sono tornati dal 2022.', 'In 2020 and 2021 guests from Switzerland and Germany dominated. Guests from Asia and the USA returned from 2022.'],
   'map.osm': ['Gebäude und Gewässer © OpenStreetMap-Mitwirkende', 'Bâtiments et cours d’eau © contributeurs OpenStreetMap', 'Edifici e corsi d’acqua © contributori OpenStreetMap', 'Buildings and waterways © OpenStreetMap contributors'],
+  'm.showOnMap': ['Auf der Karte zeigen','Afficher sur la carte','Mostra sulla mappa','Show on map'],
   'map.flags': ['Auffälligkeiten markieren', 'Marquer les anomalies', 'Segna anomalie', 'Highlight exceptions'],
   'map.flagKey': ['offene Auffälligkeit', 'anomalie ouverte', 'anomalia aperta', 'open exception'],
   'map.unreg': ['Inserat ohne Registrierung', 'Annonce sans enregistrement', 'Annuncio senza registrazione', 'Listing without registration'],

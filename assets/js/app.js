@@ -166,7 +166,7 @@ function render() {
   app.innerHTML = html;
   document.title = title;
   renderTour();
-  if (location.hash !== lastRoute) { lastRoute = location.hash; window.scrollTo(0, 0); }
+  if (location.hash !== lastRoute) { lastRoute = location.hash; window.scrollTo(0, 0); const sr = document.querySelector('.rank-row.is-sel'); if (sr && sr.closest('.rank')) { const box = sr.closest('.rank'); box.scrollTop = Math.max(0, sr.offsetTop - box.clientHeight / 2); } }
   if (focusKey) { const el = document.querySelector(`[data-input="${focusKey}"]`); if (el) { el.focus(); const l = el.value.length; try { el.setSelectionRange(l, l); } catch (e) { /* */ } } }
   const floatBtn = document.getElementById('float');
   floatBtn.innerHTML = r.a === 'gast' ? `<a class="float-btn" href="#/gastgeber/ankuenfte" title="${esc(t('demo.backToHost'))}">${icon('users', 18)}<span>${esc(t('demo.backToHost'))}</span></a>` : '';

@@ -2,6 +2,7 @@ import { state, update, host, invoiceAmounts, feed } from '../store.js';
 import { t } from '../i18n.js';
 import { icon } from '../icons.js';
 import { delta, esc, chf, num, fdate, fmonth, statusChip, kpi, toast, chip, barChart, openDrawer, closeDrawer, field } from '../ui.js';
+import { HOST_GEO } from '../geo.js';
 import { MUNI_MONTHS, MUNI_MONTHS_PY, TARIFFS } from '../data.js';
 import { toggle } from './host.js';
 import { mapPage, mapTeaser } from './map.js';
@@ -87,6 +88,11 @@ function alerts() {
   };
 }
 
+// Betriebsname mit Sprung auf die Karte (wählt den Betrieb dort aus)
+function mapLink(id, name, ok) {
+  return ok ? `<a class="host-link" href="#/gemeinde/karte" data-action="reg.showOnMap" data-arg="${esc(id)}" title="${esc(t('m.showOnMap'))}"><strong>${esc(name)}</strong> <span class="host-pin">${icon('map', 15)}<span class="sr">${esc(t('m.showOnMap'))}</span></span></a>` : `<strong>${esc(name)}</strong>`;
+}
+
 function hostsView() {
   const q = (state.ui.muniQ || '').toLowerCase();
   const list = state.hosts.filter((h) => h.municipality === 'Luzern').filter((h) => !q || `${h.name} ${h.address} ${h.objectNo}`.toLowerCase().includes(q));
@@ -95,7 +101,7 @@ function hostsView() {
     sub: t('m.hostsSub'),
     body: `<div class="toolbar"><label class="search">${icon('search', 18)}<input type="search" value="${esc(state.ui.muniQ || '')}" placeholder="${esc(t('m.searchPh'))}" data-input="muniQ" aria-label="${esc(t('common.search'))}"></label>${chip('info', t('m.registerNote'), 'database')}</div>
     <section class="card p0"><table class="tbl"><thead><tr><th>${esc(t('m.colHost'))}</th><th>${esc(t('h.category'))}</th><th>${esc(t('h.capacity'))}</th><th>${esc(t('m.colChannel'))}</th></tr></thead><tbody>
-    ${list.map((h) => `<tr><td data-label="${esc(t('m.colHost'))}"><strong>${esc(h.name)}</strong><div class="muted small">${esc(h.address)} · <span class="mono">${esc(h.objectNo)}</span></div></td><td data-label="${esc(t('h.category'))}">${esc(t('cat.' + h.cat))}</td><td data-label="${esc(t('h.capacity'))}">${esc(t('h.capacityV', { r: h.rooms, b: h.beds }))}</td><td data-label="${esc(t('m.colChannel'))}">${h.pms ? chip('ok', t('h.pms'), 'link') : chip('neutral', t('h.webapp'), 'phone')}</td></tr>`).join('')}
+    ${list.map((h) => `<tr><td data-label="${esc(t('m.colHost'))}">${mapLink(h.id, h.name, !!(h.lon || HOST_GEO[h.id]))}<div class="muted small">${esc(h.address)} · <span class="mono">${esc(h.objectNo)}</span></div></td><td data-label="${esc(t('h.category'))}">${esc(t('cat.' + h.cat))}</td><td data-label="${esc(t('h.capacity'))}">${esc(t('h.capacityV', { r: h.rooms, b: h.beds }))}</td><td data-label="${esc(t('m.colChannel'))}">${h.pms ? chip('ok', t('h.pms'), 'link') : chip('neutral', t('h.webapp'), 'phone')}</td></tr>`).join('')}
     </tbody></table></section>
     ${listingCard(q)}`,
   };
@@ -111,7 +117,7 @@ function listingCard(q) {
   return `<section class="card p0"><div class="card-head pad"><h2>${esc(t('m.listTitle'))}</h2><span class="muted small">${rows.length}</span></div>
     <div class="pad-x"><p class="muted small">${esc(t('m.listNote'))}</p></div>
     <table class="tbl"><thead><tr><th>${esc(t('m.colHost'))}</th><th>${esc(t('m.listType'))}</th><th>${esc(t('m.listCap'))}</th><th>${esc(t('m.listPrice'))}</th></tr></thead><tbody>
-    ${rows.map((o) => `<tr><td data-label="${esc(t('m.colHost'))}"><strong>${esc(o.n)}</strong><div class="muted small">${esc(o.a || o.o)}${o.q === 'p' ? ` ${esc(t('st.noStreet'))}` : ''}</div>${o.s ? ` <span class="stars" aria-label="${o.s} ${esc(t('m.listStars'))}">${'★'.repeat(o.s)}</span>` : ''}<div class="map-chips">${feats(o)}</div></td><td data-label="${esc(t('m.listType'))}">${esc(t('m.type.' + o.t))}</td><td data-label="${esc(t('m.listCap'))}">${esc(cap(o))}</td><td data-label="${esc(t('m.listPrice'))}">${esc(price(o))}</td></tr>`).join('')}
+    ${rows.map((o) => `<tr><td data-label="${esc(t('m.colHost'))}">${mapLink('U' + o.id.slice(0, 8), o.n, true)}<div class="muted small">${esc(o.a || o.o)}${o.q === 'p' ? ` ${esc(t('st.noStreet'))}` : ''}</div>${o.s ? ` <span class="stars" aria-label="${o.s} ${esc(t('m.listStars'))}">${'★'.repeat(o.s)}</span>` : ''}<div class="map-chips">${feats(o)}</div></td><td data-label="${esc(t('m.listType'))}">${esc(t('m.type.' + o.t))}</td><td data-label="${esc(t('m.listCap'))}">${esc(cap(o))}</td><td data-label="${esc(t('m.listPrice'))}">${esc(price(o))}</td></tr>`).join('')}
     </tbody></table></section>`;
 }
 

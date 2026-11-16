@@ -256,7 +256,14 @@ export function mapPage(scope, lang) {
 
 // ---------- Aktionen ----------
 const split = (arg) => { const i = String(arg).indexOf(':'); return [arg.slice(0, i), arg.slice(i + 1)]; };
+// Zentrumsausschnitt der Stadtkarte (lon 8.2815-8.3485, lat 47.0351-47.0665)
+const inCentre = (lo, la) => lo > 8.2815 && lo < 8.3485 && la > 47.0351 && la < 47.0665;
 export const mapActions = {
+  // Vom Register aus: Betrieb auf der Stadtkarte auswählen und anzeigen
+  'reg.showOnMap': (id) => {
+    const it = hostItems().find((x) => x.id === id);
+    setM('municipality', { sel: id, zoom: it && inCentre(it.lon, it.lat) ? 'center' : 'all', year: TODAY.year, pt: 'year', alerts: mst('municipality').alerts });
+  },
   'map.sel': (arg) => { const [sc, id] = split(arg); setM(sc, { sel: mst(sc).sel === id ? null : id }); },
   'map.metric': (arg) => { const [sc, v] = split(arg); setM(sc, { metric: v }); },
   'map.level': (arg) => { const [sc, v] = split(arg); setM(sc, { level: v, sel: null }); },
