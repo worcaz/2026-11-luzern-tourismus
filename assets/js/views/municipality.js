@@ -86,7 +86,7 @@ function alerts() {
 
 function hostsView() {
   const q = (state.ui.muniQ || '').toLowerCase();
-  const list = state.hosts.filter((h) => !q || `${h.name} ${h.address} ${h.objectNo}`.toLowerCase().includes(q));
+  const list = state.hosts.filter((h) => h.municipality === 'Luzern').filter((h) => !q || `${h.name} ${h.address} ${h.objectNo}`.toLowerCase().includes(q));
   return {
     title: t('m.hostsTitle'),
     sub: t('m.hostsSub'),

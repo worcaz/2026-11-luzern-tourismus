@@ -45,6 +45,10 @@ Jede Rollenansicht zeigt unter dem Titel eine schlanke **Prozesslinie** (Etappe 
 - **Trends** (Vormonat, Vorjahr) auf den Übersichten von Kanton und Gemeinde; **Auffälligkeiten** werden auf der Gemeindekarte rot markiert
 - **Berichte** für Kanton/LTAG (Monatsbericht, Rapport Mittelverwendung, Open Data)
 
+## Hotelliste
+
+Namen und Adressen der Betriebe stammen aus der öffentlichen Mitgliederliste von Luzern Hotels (Stand Oktober 2025, `assets/js/hotels.js`). Kategorie, Zimmer, Betten, Logiernächte und Abgaben sind fiktiv; Standorte auf der Karte sind aus Strasse und Quartier näherungsweise geschätzt. Betriebe ausserhalb der Stadt Luzern sind im Register, aber nicht auf der Stadtkarte.
+
 ## Annahmen im Prototyp
 
 - Elektronische Meldung ohne Unterschrift; Beherbergende prüfen den Ausweis (VZAE-Vorentwurf 2026).

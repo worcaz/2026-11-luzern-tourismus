@@ -4,9 +4,9 @@ import { t } from '../i18n.js';
 import { icon } from '../icons.js';
 import { esc, num, chip, barChart } from '../ui.js';
 import { TARIFFS } from '../data.js';
-import { ALERT_LOC, UNREG_GEO, MONTH_COUNT, REGIONS, MUNIS, K_VIEW, K_SHAPES, kProj, S_VIEW, S_SHAPES, S_LABELS, sProj, HOST_GEO, HOST_OCT, profile, profileRaw } from '../geo.js';
+import { ALERT_LOC, UNREG_GEO, MONTH_COUNT, REGIONS, MUNIS, K_VIEW, K_SHAPES, kProj, S_VIEW, sShapes, S_LABELS, sProj, HOST_GEO, HOST_OCT, profile, profileRaw } from '../geo.js';
 
-const DEFAULTS = { metric: 'levy', level: 'muni', pt: 'year', pi: 0, sel: null, alerts: true };
+const DEFAULTS = { metric: 'levy', level: 'muni', pt: 'year', pi: 0, sel: null, alerts: true, zoom: 'center' };
 const mst = (scope) => ({ ...DEFAULTS, ...((state.ui.map || {})[scope] || {}) });
 const setM = (scope, patch) => update((s) => { s.ui.map = s.ui.map || {}; s.ui.map[scope] = { ...DEFAULTS, ...(s.ui.map[scope] || {}), ...patch }; });
 
@@ -39,9 +39,11 @@ export function cantonItems(level) {
 
 export function hostItems() {
   const raw = profileRaw('city');
-  return state.hosts.filter((h) => HOST_GEO[h.id] && HOST_OCT[h.id]).map((h) => {
+  return state.hosts.filter((h) => (HOST_GEO[h.id] && HOST_OCT[h.id]) || (h.lon && h.oct)).map((h) => {
+    const geo = HOST_GEO[h.id] || { lon: h.lon, lat: h.lat };
+    const oct = HOST_OCT[h.id] || h.oct;
     const rate = rateFor(h.cat).total;
-    return { id: h.id, name: h.name, address: h.address, cat: h.cat, rooms: h.rooms, beds: h.beds, lon: HOST_GEO[h.id].lon, lat: HOST_GEO[h.id].lat, rate, monthly: raw.map((w) => HOST_OCT[h.id] * w / raw[9]) };
+    return { id: h.id, name: h.name, address: h.address, cat: h.cat, rooms: h.rooms, beds: h.beds, lon: geo.lon, lat: geo.lat, rate, monthly: raw.map((w) => oct * w / raw[9]) };
   });
 }
 
@@ -71,16 +73,17 @@ function flagMap() {
 const unregItem = () => ({ id: 'unreg', name: t('map.unreg'), pseudo: true, lon: UNREG_GEO.lon, lat: UNREG_GEO.lat, monthly: Array(MONTH_COUNT).fill(0), rate: 0 });
 
 // ---------- SVG ----------
-function svgMap(scope, items, vals, sel, { mini = false, flags = {} } = {}) {
+function svgMap(scope, items, vals, sel, { mini = false, flags = {}, zoom = 'all' } = {}) {
   const canton = scope === 'canton';
   const view = canton ? K_VIEW : S_VIEW;
-  const proj = canton ? kProj : sProj;
+  const proj = canton ? kProj : sProj(zoom);
+  const SS = canton ? null : sShapes(zoom);
   const max = Math.max(...vals, 1);
-  const [rmin, rmax] = mini ? (canton ? [2, 13] : [3, 9]) : (canton ? [5, 44] : [6, 17]);
+  const [rmin, rmax] = mini ? (canton ? [2, 13] : [3, 9]) : (canton ? [5, 44] : (zoom === 'center' ? [5, 15] : [4, 12]));
   const pts = items.map((it, i) => ({ it, v: vals[i], r: rmin + (rmax - rmin) * Math.sqrt(vals[i] / max), xy: proj(it.lon, it.lat) })).sort((a, b) => b.r - a.r);
   const shapes = canton
     ? `<path class="m-land" d="${K_SHAPES.outline}"/>${K_SHAPES.lakes.map((d) => `<path class="m-water" d="${d}"/>`).join('')}`
-    : `<rect class="m-land" x="0" y="0" width="${view[2]}" height="${view[3]}"/><path class="m-water" d="${S_SHAPES.lake}"/>${S_SHAPES.rivers.map((d) => `<path class="m-river" d="${d}"/>`).join('')}`;
+    : `<rect class="m-land" x="0" y="0" width="${view[2]}" height="${view[3]}"/><path class="m-water" d="${SS.lake}"/>${SS.rivers.map((d) => `<path class="m-river" d="${d}"/>`).join('')}`;
   const labels = canton || mini ? '' : S_LABELS.map((l) => { const [x, y] = proj(l.lon, l.lat); return `<text class="m-place ${l.lake ? 'm-place-lake' : ''}" x="${x.toFixed(1)}" y="${y.toFixed(1)}">${esc(l.name)}</text>`; }).join('');
   const bubbles = pts.map(({ it, v, r, xy: [x, y] }) => {
     const on = sel === it.id;
@@ -106,6 +109,7 @@ function controls(scope, m, lang) {
     ${canton ? seg(scope, 'level', m.level, [['region', t('map.region')], ['muni', t('map.muni')]]) : ''}
     ${seg(scope, 'pt', m.pt, [['month', t('map.month')], ['quarter', t('map.quarter')], ['year', t('map.year')]])}
     ${sel}
+    ${canton ? '' : seg(scope, 'zoom', m.zoom, [['center', t('map.zoomC')], ['all', t('map.zoomA')]])}
     ${canton ? '' : `<button type="button" class="tgl ${m.alerts ? 'is-on' : ''}" aria-pressed="${m.alerts}" data-action="map.alerts" data-arg="${scope}:${m.alerts ? 0 : 1}">${icon('alert', 16)} ${esc(t('map.flags'))}</button>`}
   </div>`;
 }
@@ -172,7 +176,7 @@ export function mapCard(scope, lang) {
     <div class="card-head"><h2>${icon('map', 20)} ${esc(t(canton ? 'map.cardC' : 'map.cardM'))}</h2></div>
     ${controls(scope, m, lang)}
     <div class="map-grid">
-      <div class="map-wrap">${svgMap(scope, items.concat(pseudo), vals.concat(pseudo.map(() => 0)), m.sel, { flags })}<p class="muted small map-legend">${esc(t('map.legend', { m: t(m.metric === 'levy' ? (canton ? 'map.levyK' : 'map.levyM') : 'map.nights') }))} · ${esc(t('map.schematic'))}${m.alerts && !canton ? ` · <span class="rank-flag">!</span> ${esc(t('map.flagKey'))}` : ''}</p></div>
+      <div class="map-wrap">${svgMap(scope, items.concat(pseudo), vals.concat(pseudo.map(() => 0)), m.sel, { flags, zoom: m.zoom })}<p class="muted small map-legend">${esc(t('map.legend', { m: t(m.metric === 'levy' ? (canton ? 'map.levyK' : 'map.levyM') : 'map.nights') }))} · ${esc(t('map.schematic'))}${m.alerts && !canton ? ` · <span class="rank-flag">!</span> ${esc(t('map.flagKey'))}` : ''}</p></div>
       <div class="map-side">
         <div class="map-total"><span class="kpi-lbl">${esc(t('map.sum'))} · ${esc(periodLabel(m, lang))}</span><strong>${esc(fmt(total, m.metric))}</strong></div>
         <h3 class="map-sub">${esc(t('map.rank'))}</h3>
@@ -210,6 +214,7 @@ export const mapActions = {
   'map.sel': (arg) => { const [sc, id] = split(arg); setM(sc, { sel: mst(sc).sel === id ? null : id }); },
   'map.metric': (arg) => { const [sc, v] = split(arg); setM(sc, { metric: v }); },
   'map.level': (arg) => { const [sc, v] = split(arg); setM(sc, { level: v, sel: null }); },
+  'map.zoom': (arg) => { const [sc, v] = split(arg); setM(sc, { zoom: v }); },
   'map.alerts': (arg) => { const [sc, v] = split(arg); setM(sc, { alerts: v === '1' }); },
   'map.pt': (arg) => { const [sc, v] = split(arg); setM(sc, { pt: v, pi: v === 'month' ? Math.min(mst(sc).pi, MONTH_COUNT - 1) : Math.min(mst(sc).pi, 3) }); },
 };

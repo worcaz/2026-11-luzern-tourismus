@@ -74,17 +74,14 @@ export const MUNIS = [
 ];
 
 // ---------- Stadt Luzern ----------
-const S = { lon0: 8.215, lat0: 47.094, s: 5400, c: 0.682 };
-export const sProj = (lon, lat) => [(lon - S.lon0) * S.c * S.s, (S.lat0 - lat) * S.s];
+const SCONF = { all: { lon0: 8.215, lat0: 47.094, s: 5400, c: 0.682 }, center: { lon0: 8.2815, lat0: 47.0665, s: 14000, c: 0.682 } };
+export const sProj = (zoom = 'all') => { const S = SCONF[zoom] || SCONF.all; return (lon, lat) => [(lon - S.lon0) * S.c * S.s, (S.lat0 - lat) * S.s]; };
 export const S_VIEW = [0, 0, 640, 440];
 
 const SEE = [[8.3112, 47.0494], [8.3170, 47.0518], [8.3260, 47.0541], [8.3340, 47.0548], [8.3600, 47.0580], [8.4100, 47.0600], [8.4100, 47.0000], [8.2900, 47.0000], [8.2960, 47.0180], [8.3040, 47.0320], [8.3092, 47.0415], [8.3112, 47.0445]];
 const REUSS = [[8.3083, 47.0512], [8.3040, 47.0530], [8.2990, 47.0555], [8.2935, 47.0600], [8.2880, 47.0660], [8.2820, 47.0725], [8.2765, 47.0790], [8.2720, 47.0860]];
 const EMME = [[8.2000, 47.0700], [8.2500, 47.0740], [8.2640, 47.0800], [8.2720, 47.0830]];
-export const S_SHAPES = {
-  lake: toPath(SEE, sProj),
-  rivers: [toPath(REUSS, sProj, false), toPath(EMME, sProj, false)],
-};
+export const sShapes = (zoom = 'all') => { const pr = sProj(zoom); return { lake: toPath(SEE, pr), rivers: [toPath(REUSS, pr, false), toPath(EMME, pr, false)] }; };
 export const S_LABELS = [
   { name: 'Vierwaldstättersee', lon: 8.36, lat: 47.0400, lake: true },
   { name: 'Altstadt', lon: 8.3045, lat: 47.0515 },

@@ -1,3 +1,5 @@
+import { HOTELS } from './hotels.js';
+
 // Fiktive Demodaten. Alle Betriebe, Personen und Zahlen sind erfunden.
 export const DEMO_TODAY = '2026-11-04';
 
@@ -17,7 +19,7 @@ export const TARIFFS = {
 
 export function initialState() {
   return {
-    v: 3,
+    v: 4,
     lang: null,
     guestLang: null,
     tour: { active: false, step: 0 },
@@ -28,6 +30,7 @@ export function initialState() {
       { id: 'H4', name: 'Apartments Reussbühl', type: 'fewo', cat: 'fewo', address: 'Hauptstrasse 41, 6015 Luzern', municipality: 'Luzern', bfs: 1061, objectNo: 'LU-1061-0208', rooms: 9, beds: 26, contact: 'Ivan Kovač', pms: true },
       { id: 'H5', name: 'Ferienwohnung Wesemlin', type: 'fewo', cat: 'fewo', address: 'Wesemlinrain 5, 6006 Luzern', municipality: 'Luzern', bfs: 1061, objectNo: 'LU-1061-0311', rooms: 2, beds: 4, contact: 'Beat Fischer', pms: false },
       { id: 'H6', name: 'Pension Tribschen', type: 'bnb', cat: 'pension', address: 'Tribschenstrasse 18, 6005 Luzern', municipality: 'Luzern', bfs: 1061, objectNo: 'LU-1061-0094', rooms: 11, beds: 20, contact: 'Nadia Imhof', pms: false },
+      ...HOTELS,
     ],
     bookings: [
       { id: 'B-24017', host: 'H1', lang: 'fr', status: 'invited', arrival: '2026-11-04', departure: '2026-11-07', nights: 3, room: 'Deluxe Seesicht 412', email: 'claire.martin@example.fr', invitedAt: '2026-11-01T09:14',
