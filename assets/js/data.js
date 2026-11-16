@@ -19,7 +19,7 @@ export const TARIFFS = {
 
 export function initialState() {
   return {
-    v: 5,
+    v: 6,
     lang: null,
     guestLang: null,
     tour: { active: false, step: 0 },
